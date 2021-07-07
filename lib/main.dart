@@ -70,14 +70,12 @@ class Lyla extends StatelessWidget {
         return GetMaterialApp(
           title: 'Lyla',
           theme: ThemeData.light().copyWith(
-           
             textTheme: TextTheme(
                 headline4: GoogleFonts.spartan(fontWeight: FontWeight.bold)),
             primaryColor: state.getColor(),
           ),
           themeMode: state.getThemeMode(),
           darkTheme: ThemeData.dark().copyWith(
-           
             textTheme: TextTheme(
                 headline4: GoogleFonts.spartan(
                     fontWeight: FontWeight.bold,
@@ -86,12 +84,15 @@ class Lyla extends StatelessWidget {
           home: StreamBuilder<User?>(
               stream: firebaseUser.authStateChanges,
               builder: (context, s) {
-                //if (s.connectionState == ConnectionState.waiting)
-                // return LoadingFullScreen();
+                if (s.connectionState == ConnectionState.waiting)
+                  return LoadingFullScreen();
                 if (!s.hasData)
                   return Body(content: Login());
                 else
-                  return Body(content: Home());
+                  return Provider<User?>(
+                    create: (_) => s.data,
+                    child: Body(content: Home()),
+                  );
               }),
           debugShowCheckedModeBanner: false,
         );

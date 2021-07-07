@@ -4,29 +4,36 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 
 class Utilisateur {
-  Map<String, String>? image;
+  String? image;
   String? numero;
   String? uid;
   String? nom;
-
+  String? email;
+  bool? admin;
   Utilisateur({
     this.image,
     this.numero,
     this.uid,
     this.nom,
+    this.email,
+    this.admin,
   });
 
   Utilisateur copyWith({
-    Map<String, String>? image,
+    String? image,
     String? numero,
     String? uid,
     String? nom,
+    String? email,
+    bool? admin,
   }) {
     return Utilisateur(
       image: image ?? this.image,
       numero: numero ?? this.numero,
       uid: uid ?? this.uid,
       nom: nom ?? this.nom,
+      email: email ?? this.email,
+      admin: admin ?? this.admin,
     );
   }
 
@@ -36,15 +43,19 @@ class Utilisateur {
       'numero': numero,
       'uid': uid,
       'nom': nom,
+      'email': email,
+      'admin': admin,
     };
   }
 
   factory Utilisateur.fromMap(Map<String, dynamic> map) {
     return Utilisateur(
-      image: Map<String, String>.from(map['image']),
+      image: map['image'],
       numero: map['numero'],
       uid: map['uid'],
       nom: map['nom'],
+      email: map['email'],
+      admin: map['admin'],
     );
   }
 
@@ -55,7 +66,7 @@ class Utilisateur {
 
   @override
   String toString() {
-    return 'Utilisateur(image: $image, numero: $numero, uid: $uid, nom: $nom)';
+    return 'Utilisateur(image: $image, numero: $numero, uid: $uid, nom: $nom, email: $email, admin: $admin)';
   }
 
   @override
@@ -63,15 +74,22 @@ class Utilisateur {
     if (identical(this, other)) return true;
 
     return other is Utilisateur &&
-        mapEquals(other.image, image) &&
+        other.image == image &&
         other.numero == numero &&
         other.uid == uid &&
-        other.nom == nom;
+        other.nom == nom &&
+        other.email == email &&
+        other.admin == admin;
   }
 
   @override
   int get hashCode {
-    return image.hashCode ^ numero.hashCode ^ uid.hashCode ^ nom.hashCode;
+    return image.hashCode ^
+        numero.hashCode ^
+        uid.hashCode ^
+        nom.hashCode ^
+        email.hashCode ^
+        admin.hashCode;
   }
 }
 
