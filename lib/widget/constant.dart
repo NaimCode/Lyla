@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:get/get.dart';
 
 class Loading extends StatelessWidget {
-  const Loading({Key? key}) : super(key: key);
-
+  const Loading({this.color, Key? key}) : super(key: key);
+  final Color? color;
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: SpinKitChasingDots(
-        color: Theme.of(context).primaryColor,
+      child: SpinKitThreeBounce(
+        color: color ?? Theme.of(context).primaryColor,
         size: 30.0,
       ),
     );
@@ -22,8 +23,8 @@ class LoadingFullScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: SpinKitChasingDots(
-          color: Theme.of(context).primaryColor,
+        child: SpinKitThreeBounce(
+          color: Get.isDarkMode ? Colors.white : Theme.of(context).primaryColor,
           size: 50.0,
         ),
       ),

@@ -26,8 +26,10 @@ void main() async {
         ? HydratedStorage.webStorageDirectory
         : await getTemporaryDirectory(),
   );
+
   // await Hive.openBox('Settings');
   // initHive();
+  //print(FacebookAuth.i.isWebSdkInitialized);
   runApp(App());
 }
 
@@ -68,14 +70,14 @@ class Lyla extends StatelessWidget {
         return GetMaterialApp(
           title: 'Lyla',
           theme: ThemeData.light().copyWith(
-            inputDecorationTheme: ThemeData.light().inputDecorationTheme,
+           
             textTheme: TextTheme(
                 headline4: GoogleFonts.spartan(fontWeight: FontWeight.bold)),
             primaryColor: state.getColor(),
           ),
           themeMode: state.getThemeMode(),
           darkTheme: ThemeData.dark().copyWith(
-            inputDecorationTheme: ThemeData.dark().inputDecorationTheme,
+           
             textTheme: TextTheme(
                 headline4: GoogleFonts.spartan(
                     fontWeight: FontWeight.bold,

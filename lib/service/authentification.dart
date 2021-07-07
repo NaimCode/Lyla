@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
 import 'package:get/get.dart';
 
 import 'package:http/http.dart' as http;
@@ -28,7 +29,17 @@ class Authentification {
     return _firebaseAuth.currentUser!.isAnonymous;
   }
 
-  signAnonyme() async {
-    await FirebaseAuth.instance.signInAnonymously();
+  connection(String mail, String password) async {
+    try {
+      await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: mail, password: password);
+      return 'Success';
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        return 'Not Exist';
+      } else if (e.code == 'wrong-password') {
+        return 'Wrong password';
+      }
+    }
   }
 }
