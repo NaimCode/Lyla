@@ -12,7 +12,14 @@ import 'package:social_message/service/authentification.dart';
 import 'package:social_message/widget/constant.dart';
 
 var _auth = Authentification(FirebaseAuth.instance);
-var _logPage = [LoginEmailPassword(), LoginImageName()];
+var _logPage = [
+  LoginEmailPassword(
+    key: UniqueKey(),
+  ),
+  LoginImageName(
+    key: UniqueKey(),
+  )
+];
 var _index = 0.obs;
 TextEditingController _email = TextEditingController();
 TextEditingController _password = TextEditingController();
@@ -29,8 +36,19 @@ class Login extends StatelessWidget {
                 width: 400,
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
                 child: Obx(
-                  () => _logPage[_index.value],
-                ))));
+                  () => AnimatedSwitcher(
+                    transitionBuilder: (widget, animation) => ScaleTransition(
+                      scale: animation,
+                      child: widget,
+                    ),
+                    duration: Duration(milliseconds: 1000),
+                    child: _logPage[_index.value],
+                  ),
+                )
+                //  Obx(
+                //   () => _logPage[_index.value],
+                // )
+                )));
   }
 }
 

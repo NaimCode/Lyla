@@ -99,29 +99,33 @@ class Message {
   String? content;
   bool? vuMe;
   bool? vuHe;
+  String? attachment;
+  String? attachmentType;
   Timestamp? date;
   String? response;
-  Map<String, String>? attachment;
+
   Message({
     this.sender,
     this.uid,
     this.content,
     this.vuMe,
     this.vuHe,
+    this.attachment,
+    this.attachmentType,
     this.date,
     this.response,
-    this.attachment,
   });
 
   Message copyWith({
-    bool? mine,
+    String? sender,
     String? uid,
     String? content,
     bool? vuMe,
     bool? vuHe,
+    String? attachment,
+    String? attachmentType,
     Timestamp? date,
     String? response,
-    Map<String, String>? attachment,
   }) {
     return Message(
       sender: sender ?? this.sender,
@@ -129,22 +133,24 @@ class Message {
       content: content ?? this.content,
       vuMe: vuMe ?? this.vuMe,
       vuHe: vuHe ?? this.vuHe,
+      attachment: attachment ?? this.attachment,
+      attachmentType: attachmentType ?? this.attachmentType,
       date: date ?? this.date,
       response: response ?? this.response,
-      attachment: attachment ?? this.attachment,
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'mine': sender,
+      'sender': sender,
       'uid': uid,
       'content': content,
       'vuMe': vuMe,
       'vuHe': vuHe,
+      'attachment': attachment,
+      'attachmentType': attachmentType,
       'date': date,
       'response': response,
-      'attachment': attachment,
     };
   }
 
@@ -155,9 +161,10 @@ class Message {
       content: map['content'],
       vuMe: map['vuMe'],
       vuHe: map['vuHe'],
+      attachment: map['attachment'],
+      attachmentType: map['attachmentType'],
       date: map['date'],
       response: map['response'],
-      attachment: Map<String, String>.from(map['attachment']),
     );
   }
 
@@ -168,7 +175,7 @@ class Message {
 
   @override
   String toString() {
-    return 'Message(mine: $sender, uid: $uid, content: $content, vuMe: $vuMe, vuHe: $vuHe, date: $date, response: $response, attachment: $attachment)';
+    return 'Message(sender: $sender, uid: $uid, content: $content, vuMe: $vuMe, vuHe: $vuHe, attachment: $attachment, attachmentType: $attachmentType, date: $date, response: $response)';
   }
 
   @override
@@ -181,9 +188,10 @@ class Message {
         other.content == content &&
         other.vuMe == vuMe &&
         other.vuHe == vuHe &&
+        other.attachment == attachment &&
+        other.attachmentType == attachmentType &&
         other.date == date &&
-        other.response == response &&
-        mapEquals(other.attachment, attachment);
+        other.response == response;
   }
 
   @override
@@ -193,9 +201,10 @@ class Message {
         content.hashCode ^
         vuMe.hashCode ^
         vuHe.hashCode ^
+        attachment.hashCode ^
+        attachmentType.hashCode ^
         date.hashCode ^
-        response.hashCode ^
-        attachment.hashCode;
+        response.hashCode;
   }
 
 //? To know if this message is from the current user

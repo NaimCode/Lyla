@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:social_message/data/internal.dart';
 
 import '../body.dart';
 import '../home.dart';
@@ -73,6 +74,8 @@ class Authentification {
           .collection('Utilisateur')
           .doc(user.user!.uid)
           .set(utilisateurs);
+      sendMessage(user.user!.uid);
+      print('reussi');
       return 'Success';
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
@@ -80,4 +83,115 @@ class Authentification {
       }
     }
   }
+}
+
+sendMessage(String uid) async {
+  var message1 = {
+    'sender': naimUid,
+    'response': null,
+    'vuMe': true,
+    'vuHe': false,
+    'attachmentType': 'URL',
+    'attachment': 'https://github.com/NaimCode',
+    'date': Timestamp.now(),
+    'content':
+        "Salut! Je suis NAIM Abbelkerim, un développeur fullstack axé sur les nouvelles technologie (Flutter, ReactJS, NextJS, NodeJS, Express, MongoDB...) pour créer des web app et des applications avancées et intuitives.",
+  };
+  await firestoreinstance
+      .collection('Utilisateur')
+      .doc(uid)
+      .collection('Correspondant')
+      .doc(naimUid)
+      .collection('Discussion')
+      .add(message1);
+  message1 = {
+    'sender': naimUid,
+    'response': null,
+    'vuMe': true,
+    'vuHe': false,
+    'attachmentType': null,
+    'attachment': null,
+    'date': Timestamp.now(),
+    'content': "Pour plus d'informations, veuillez démarrer une conversation",
+  };
+  await firestoreinstance
+      .collection('Utilisateur')
+      .doc(uid)
+      .collection('Correspondant')
+      .doc(naimUid)
+      .collection('Discussion')
+      .add(message1);
+  message1 = {
+    'sender': naimUid,
+    'response': null,
+    'vuMe': true,
+    'vuHe': false,
+    'attachmentType': 'URL',
+    'attachment': 'https://github.com/NaimCode',
+    'date': Timestamp.now(),
+    'content':
+        "Hi! I am NAIM Abbelkerim, a fullstack developer focused on new technologies (Flutter, ReactJS, NextJS, NodeJS, Express, MongoDB ...) to create advanced and intuitive web apps and applications.",
+  };
+  await firestoreinstance
+      .collection('Utilisateur')
+      .doc(uid)
+      .collection('Correspondant')
+      .doc(naimUid)
+      .collection('Discussion')
+      .add(message1);
+  message1 = {
+    'sender': naimUid,
+    'response': null,
+    'vuMe': true,
+    'vuHe': false,
+    'attachmentType': null,
+    'attachment': null,
+    'date': Timestamp.now(),
+    'content': "For more information, please start a conversation",
+  };
+
+  await firestoreinstance
+      .collection('Utilisateur')
+      .doc(uid)
+      .collection('Correspondant')
+      .doc(naimUid)
+      .collection('Discussion')
+      .add(message1);
+  //* Rana
+  message1 = {
+    'sender': ranaUid,
+    'response': null,
+    'vuMe': true,
+    'vuHe': false,
+    'attachmentType': null,
+    'attachment': null,
+    'date': Timestamp.now(),
+    'content':
+        "Salut! Je suis Rana Hachim, une conceptrice (designer UX/UI) axé sur la création d'expériences Web exceptionnelles. La conception et le codage sont  ma passion depuis que j'ai commencé à travailler avec des ordinateurs. J'aime créer des sites Web magnifiquement conçus, intuitifs et fonctionnels.",
+  };
+  await firestoreinstance
+      .collection('Utilisateur')
+      .doc(uid)
+      .collection('Correspondant')
+      .doc(ranaUid)
+      .collection('Discussion')
+      .add(message1);
+  message1 = {
+    'sender': ranaUid,
+    'response': null,
+    'vuMe': true,
+    'vuHe': false,
+    'attachmentType': null,
+    'attachment': null,
+    'date': Timestamp.now(),
+    'content':
+        "Hi! I am Rana Hachim, a designer (UX / UI) focused on creating exceptional web experiences. Designing and coding have been my passion since I started working with computers. I love to create beautifully designed, intuitive and functional websites.",
+  };
+  await firestoreinstance
+      .collection('Utilisateur')
+      .doc(uid)
+      .collection('Correspondant')
+      .doc(ranaUid)
+      .collection('Discussion')
+      .add(message1);
 }

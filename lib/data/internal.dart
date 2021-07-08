@@ -19,3 +19,6 @@ List ColorTheme = [
     'title': 'amber',
   }
 ];
+
+String naimUid = 'sWAojeY5eQMm8Ll1gnMxy6EQBtW2';
+String ranaUid = 'TAbiHIDnvTfjlp53uhQOoZ2gOHg1';
