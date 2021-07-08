@@ -97,8 +97,7 @@ class Message {
   String? sender;
   String? uid;
   String? content;
-  bool? vuMe;
-  bool? vuHe;
+  bool? vu;
   String? attachment;
   String? attachmentType;
   Timestamp? date;
@@ -108,8 +107,7 @@ class Message {
     this.sender,
     this.uid,
     this.content,
-    this.vuMe,
-    this.vuHe,
+    this.vu,
     this.attachment,
     this.attachmentType,
     this.date,
@@ -120,8 +118,7 @@ class Message {
     String? sender,
     String? uid,
     String? content,
-    bool? vuMe,
-    bool? vuHe,
+    bool? vu,
     String? attachment,
     String? attachmentType,
     Timestamp? date,
@@ -131,8 +128,7 @@ class Message {
       sender: sender ?? this.sender,
       uid: uid ?? this.uid,
       content: content ?? this.content,
-      vuMe: vuMe ?? this.vuMe,
-      vuHe: vuHe ?? this.vuHe,
+      vu: vu ?? this.vu,
       attachment: attachment ?? this.attachment,
       attachmentType: attachmentType ?? this.attachmentType,
       date: date ?? this.date,
@@ -145,8 +141,7 @@ class Message {
       'sender': sender,
       'uid': uid,
       'content': content,
-      'vuMe': vuMe,
-      'vuHe': vuHe,
+      'vu': vu,
       'attachment': attachment,
       'attachmentType': attachmentType,
       'date': date,
@@ -159,8 +154,7 @@ class Message {
       sender: map['sender'],
       uid: map['uid'],
       content: map['content'],
-      vuMe: map['vuMe'],
-      vuHe: map['vuHe'],
+      vu: map['vu'],
       attachment: map['attachment'],
       attachmentType: map['attachmentType'],
       date: map['date'],
@@ -175,7 +169,7 @@ class Message {
 
   @override
   String toString() {
-    return 'Message(sender: $sender, uid: $uid, content: $content, vuMe: $vuMe, vuHe: $vuHe, attachment: $attachment, attachmentType: $attachmentType, date: $date, response: $response)';
+    return 'Message(sender: $sender, uid: $uid, content: $content, vu: $vu, attachment: $attachment, attachmentType: $attachmentType, date: $date, response: $response)';
   }
 
   @override
@@ -186,8 +180,7 @@ class Message {
         other.sender == sender &&
         other.uid == uid &&
         other.content == content &&
-        other.vuMe == vuMe &&
-        other.vuHe == vuHe &&
+        other.vu == vu &&
         other.attachment == attachment &&
         other.attachmentType == attachmentType &&
         other.date == date &&
@@ -199,8 +192,7 @@ class Message {
     return sender.hashCode ^
         uid.hashCode ^
         content.hashCode ^
-        vuMe.hashCode ^
-        vuHe.hashCode ^
+        vu.hashCode ^
         attachment.hashCode ^
         attachmentType.hashCode ^
         date.hashCode ^

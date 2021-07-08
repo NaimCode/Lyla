@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:social_message/data/internal.dart';
+import 'package:social_message/model/class.dart';
 
 import '../body.dart';
 import '../home.dart';
@@ -86,11 +87,16 @@ class Authentification {
 }
 
 sendMessage(String uid) async {
+  await firestoreinstance
+      .collection('Utilisateur')
+      .doc(uid)
+      .collection('Correspondant')
+      .doc(naimUid)
+      .set({'email': 'naimdevelopper@gmail.com', 'uid': naimUid});
   var message1 = {
     'sender': naimUid,
     'response': null,
-    'vuMe': true,
-    'vuHe': false,
+    'vu': false,
     'attachmentType': 'URL',
     'attachment': 'https://github.com/NaimCode',
     'date': Timestamp.now(),
@@ -107,8 +113,7 @@ sendMessage(String uid) async {
   message1 = {
     'sender': naimUid,
     'response': null,
-    'vuMe': true,
-    'vuHe': false,
+    'vu': false,
     'attachmentType': null,
     'attachment': null,
     'date': Timestamp.now(),
@@ -124,8 +129,7 @@ sendMessage(String uid) async {
   message1 = {
     'sender': naimUid,
     'response': null,
-    'vuMe': true,
-    'vuHe': false,
+    'vu': false,
     'attachmentType': 'URL',
     'attachment': 'https://github.com/NaimCode',
     'date': Timestamp.now(),
@@ -142,10 +146,7 @@ sendMessage(String uid) async {
   message1 = {
     'sender': naimUid,
     'response': null,
-    'vuMe': true,
-    'vuHe': false,
-    'attachmentType': null,
-    'attachment': null,
+    'vu': false,
     'date': Timestamp.now(),
     'content': "For more information, please start a conversation",
   };
@@ -158,11 +159,16 @@ sendMessage(String uid) async {
       .collection('Discussion')
       .add(message1);
   //* Rana
+  await firestoreinstance
+      .collection('Utilisateur')
+      .doc(uid)
+      .collection('Correspondant')
+      .doc(ranaUid)
+      .set({'email': 'ranaa.hachim@gmail.com', 'uid': ranaUid});
   message1 = {
     'sender': ranaUid,
     'response': null,
-    'vuMe': true,
-    'vuHe': false,
+    'vu': false,
     'attachmentType': null,
     'attachment': null,
     'date': Timestamp.now(),
@@ -179,8 +185,7 @@ sendMessage(String uid) async {
   message1 = {
     'sender': ranaUid,
     'response': null,
-    'vuMe': true,
-    'vuHe': false,
+    'vu': false,
     'attachmentType': null,
     'attachment': null,
     'date': Timestamp.now(),

@@ -12,7 +12,7 @@ import 'package:social_message/service/authentification.dart';
 import 'package:provider/provider.dart';
 import 'constant.dart';
 
-class DiscussionSpecialItem extends StatelessWidget {
+class DiscussionSpecialItem extends StatefulWidget {
   const DiscussionSpecialItem({
     required this.description,
     required this.correspondant,
@@ -23,12 +23,17 @@ class DiscussionSpecialItem extends StatelessWidget {
   final String description;
 
   @override
+  _DiscussionSpecialItemState createState() => _DiscussionSpecialItemState();
+}
+
+class _DiscussionSpecialItemState extends State<DiscussionSpecialItem> {
+  @override
   Widget build(BuildContext context) {
     User? user = context.watch<User?>();
     return FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
         future: firestoreinstance
             .collection('Utilisateur')
-            .doc(correspondant)
+            .doc(widget.correspondant)
             .get(),
         builder: (context, snap) {
           if (snap.connectionState == ConnectionState.waiting)
@@ -42,21 +47,26 @@ class DiscussionSpecialItem extends StatelessWidget {
                   .collection('Utilisateur')
                   .doc(user!.uid)
                   .collection('Correspondant')
-                  .doc(utilisateur!.uid!)
+                  .doc(widget.correspondant)
                   .collection('Discussion')
-                  .where('vuHe', isEqualTo: false)
+                  .where('vu', isEqualTo: false)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting)
                   return LoadingConversation();
                 List<Message> listMessage = [];
+                if (!snapshot.hasData) return LoadingConversation();
                 if (snapshot.hasData) {
+                  listMessage.clear();
                   for (var i in snapshot.data!.docs) {
-                    listMessage.add(Message.fromMap(i.data()));
+                    if (!i.data()['vu'])
+                      listMessage.add(Message.fromMap(i.data()));
                   }
                 }
-
+                utilisateur!.uid.printInfo();
+                widget.correspondant.printInfo();
                 return ListTile(
+                  selected: utilisateur.uid == widget.correspondant,
                   onTap: () {
                     corresGlobal = utilisateur;
                     BlocProvider.of<ChattingCubit>(context).select(utilisateur);
@@ -65,12 +75,111 @@ class DiscussionSpecialItem extends StatelessWidget {
                   contentPadding:
                       EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   trailing: Container(
-                    child: Row(
+                    child: listMessage.length == 0
+                        ? Container(
+                            width: 0,
+                          )
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(listMessage.length.toString(),
+                                  style: GoogleFonts.poppins(
+                                    color: Get.isDarkMode
+                                        ? Colors.blue
+                                        : Theme.of(context).primaryColor,
+                                  )),
+                              CircleAvatar(
+                                radius: 4,
+                                backgroundColor: Get.isDarkMode
+                                    ? Colors.blue
+                                    : Theme.of(context).primaryColor,
+                              )
+                            ],
+                          ),
+                  ),
+                  leading: CircleAvatar(
+                    backgroundImage: NetworkImage(utilisateur.image!),
+                  ),
+                  title: Text(
+                    utilisateur.nom!,
+                    style: Theme.of(context).textTheme.bodyText1!.copyWith(
+                        fontSize: 18,
+                        color: Get.isDarkMode ? Colors.white : Colors.black),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  subtitle: Text(
+                    widget.description,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodyText1!
+                        .copyWith(fontSize: 15, color: Colors.grey),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                );
+              });
+        });
+  }
+}
+
+class DiscussionItem extends StatefulWidget {
+  const DiscussionItem({
+    required this.correspondant,
+    Key? key,
+  }) : super(key: key);
+
+  final Utilisateur correspondant;
+
+  @override
+  _DiscussionItemState createState() => _DiscussionItemState();
+}
+
+class _DiscussionItemState extends State<DiscussionItem> {
+  @override
+  Widget build(BuildContext context) {
+    User? user = context.watch<User?>();
+    return StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+        stream: firestoreinstance
+            .collection('Utilisateur')
+            .doc(user!.uid)
+            .collection('Correspondant')
+            .doc(widget.correspondant.uid!)
+            .collection('Discussion')
+            .where('vu', isEqualTo: false)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return LoadingConversation();
+          List<Message> listMessage = [];
+          if (snapshot.hasData) {
+            print(snapshot.data!.size);
+            for (var i in snapshot.data!.docs) {
+              listMessage.add(Message.fromMap(i.data()));
+            }
+          }
+
+          return ListTile(
+            onTap: () {
+              corresGlobal = widget.correspondant;
+              BlocProvider.of<ChattingCubit>(context)
+                  .select(widget.correspondant);
+            },
+            dense: true,
+            contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            trailing: Container(
+              child: snapshot.data!.size == 0
+                  ? Container(
+                      width: 0,
+                    )
+                  : Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(listMessage.length.toString(),
+                        Text(snapshot.data!.size.toString(),
                             style: GoogleFonts.poppins(
                               color: Get.isDarkMode
                                   ? Colors.blue
@@ -84,29 +193,28 @@ class DiscussionSpecialItem extends StatelessWidget {
                         )
                       ],
                     ),
-                  ),
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(utilisateur!.image!),
-                  ),
-                  title: Text(
-                    utilisateur.nom!,
-                    style: Theme.of(context).textTheme.bodyText1!.copyWith(
-                        fontSize: 18,
-                        color: Get.isDarkMode ? Colors.white : Colors.black),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  subtitle: Text(
-                    description,
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyText1!
-                        .copyWith(fontSize: 15, color: Colors.grey),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                );
-              });
+            ),
+            leading: CircleAvatar(
+              backgroundImage: NetworkImage(widget.correspondant.image!),
+            ),
+            title: Text(
+              widget.correspondant.nom!,
+              style: Theme.of(context).textTheme.bodyText1!.copyWith(
+                  fontSize: 18,
+                  color: Get.isDarkMode ? Colors.white : Colors.black),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: Text(
+              widget.correspondant.email!,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyText1!
+                  .copyWith(fontSize: 15, color: Colors.grey),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          );
         });
   }
 }

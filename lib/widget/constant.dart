@@ -1,6 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:social_message/model/class.dart';
+import 'package:social_message/service/authentification.dart';
+import 'package:social_message/widget/item.dart';
 
 class Loading extends StatelessWidget {
   const Loading({this.color, Key? key}) : super(key: key);
@@ -100,5 +105,60 @@ class IntroChatting extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class AddFriend extends StatefulWidget {
+  const AddFriend({Key? key}) : super(key: key);
+
+  @override
+  _AddFriendState createState() => _AddFriendState();
+}
+
+class _AddFriendState extends State<AddFriend> {
+  TextEditingController search = TextEditingController();
+  var searchText = ''.obs;
+  List<Utilisateur> list = [];
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
+        future: firestoreinstance.collection('Utilisateur').get(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting)
+            return Center(
+              child: Loading(),
+            );
+          if (snapshot.hasData) {
+            for (var i in snapshot.data!.docs) {
+              list.add(Utilisateur.fromMap(i.data()));
+            }
+          }
+          return Column(children: [
+            Material(
+              elevation: 4,
+              child: TextFormField(
+                controller: search,
+                onChanged: (v) {
+                  searchText.value = v;
+                },
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  hintText: 'Recherche',
+                  filled: true,
+                  suffixIcon: IconButton(
+                      onPressed: () {}, icon: Icon(FontAwesomeIcons.search)),
+                ),
+              ),
+            ),
+            ListView.builder(
+                shrinkWrap: true,
+                itemCount: list.length,
+                itemBuilder: (context, index) {
+                  return DiscussionSpecialItem(
+                      description: list[index].email!,
+                      correspondant: list[index].uid!);
+                })
+          ]);
+        });
   }
 }

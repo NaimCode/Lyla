@@ -29,6 +29,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     User? user = context.watch<User?>();
+
     return BlocProvider<ChattingCubit>(
       create: (context) => ChattingCubit(corresGlobal),
       child: Row(children: [
@@ -71,12 +72,25 @@ class _HomeState extends State<Home> {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: Text(
-                    'Administrateur',
-                    style: Theme.of(context).textTheme.headline4!.copyWith(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w300,
-                        color: Colors.grey),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Administrateur',
+                        style: Theme.of(context).textTheme.headline4!.copyWith(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w300,
+                            color: Colors.grey),
+                      ),
+                      Text(
+                        2.toString(),
+                        style: Theme.of(context).textTheme.headline4!.copyWith(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color:
+                                Get.isDarkMode ? Colors.white : Colors.black),
+                      )
+                    ],
                   ),
                 ),
                 DiscussionSpecialItem(
@@ -93,6 +107,100 @@ class _HomeState extends State<Home> {
                   correspondant: ranaUid,
                   description: 'Designer UX/UI',
                 ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Divider(),
+                ),
+                Expanded(
+                  child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                      stream: firestoreinstance
+                          .collection('Utilisateur')
+                          .doc(user!.uid)
+                          .collection('Correspondant')
+                          .snapshots(),
+                      builder: (context, snap) {
+                        if (snap.connectionState == ConnectionState.waiting) {
+                          return Container();
+                        }
+                        List<Utilisateur> listCorres = [];
+                        if (snap.hasData) {
+                          for (var i = 0; i < snap.data!.size; i++) {
+                            if (snap.data!.docs[i].data()['uid'] == naimUid ||
+                                snap.data!.docs[i].data()['uid'] == ranaUid) {
+                            } else
+                              listCorres.add(Utilisateur.fromMap(
+                                  snap.data!.docs[i].data()));
+                          }
+                        }
+                        return Column(
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 10),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Amis',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline4!
+                                        .copyWith(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w300,
+                                            color: Colors.grey),
+                                  ),
+                                  Text(
+                                    (snap.data!.size - 2).toString(),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headline4!
+                                        .copyWith(
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.bold,
+                                            color: Get.isDarkMode
+                                                ? Colors.white
+                                                : Colors.black),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: listCorres.length,
+                                itemBuilder: (context, index) {
+                                  return DiscussionSpecialItem(
+                                    correspondant: snap.data!.docs[index].id,
+                                    description:
+                                        snap.data!.docs[index].data()['email'],
+                                  );
+                                })
+                          ],
+                        );
+                      }),
+                ),
+                Center(
+                  child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                          primary: Get.isDarkMode
+                              ? Colors.blue
+                              : Theme.of(context).primaryColor),
+                      onPressed: () {
+                        Get.defaultDialog(
+                          title: 'Trouvez un(e) ami(e)',
+                          content: AddFriend(),
+                        );
+                      },
+                      icon: Icon(Icons.add,
+                          color: Get.isDarkMode ? Colors.white : Colors.black),
+                      label: Row(
+                        children: [
+                          Text('Ajouter un(e) ami(e)',
+                              style: Theme.of(context).textTheme.bodyText1)
+                        ],
+                      )),
+                )
               ],
             )),
         Expanded(
@@ -151,7 +259,7 @@ class _HomeState extends State<Home> {
                 ),
                 Divider(),
                 StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                    stream: streamUser.doc(user!.uid).snapshots(),
+                    stream: streamUser.doc(user.uid).snapshots(),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting)
                         return Column(
@@ -382,14 +490,27 @@ class _ChattingState extends State<Chatting> {
     var message1 = {
       'sender': user!.uid,
       'response': null,
-      'vuMe': true,
-      'vuHe': false,
+      'vu': true,
       'attachmentType': null,
       'attachment': null,
       'date': Timestamp.now(),
       'content': messageContent.text,
     };
     try {
+      DocumentReference<Map<String, dynamic>> doc = firestoreinstance
+          .collection('Utilisateur')
+          .doc(user!.uid)
+          .collection('Correspondant')
+          .doc(widget.correspondant!.uid);
+
+      doc.get().then((value) {
+        if (!value.exists) {
+          doc.set({
+            'email': widget.correspondant!.email,
+            'uid': widget.correspondant!.uid,
+          });
+        }
+      });
       await firestoreinstance
           .collection('Utilisateur')
           .doc(user!.uid)
@@ -397,6 +518,30 @@ class _ChattingState extends State<Chatting> {
           .doc(widget.correspondant!.uid)
           .collection('Discussion')
           .add(message1);
+
+      doc = firestoreinstance
+          .collection('Utilisateur')
+          .doc(widget.correspondant!.uid)
+          .collection('Correspondant')
+          .doc(user!.uid);
+
+      doc.get().then((value) {
+        if (!value.exists) {
+          doc.set({
+            'email': user!.email,
+            'uid': user!.uid,
+          });
+        }
+      });
+      message1 = {
+        'sender': user!.uid,
+        'response': null,
+        'vu': false,
+        'attachmentType': null,
+        'attachment': null,
+        'date': Timestamp.now(),
+        'content': messageContent.text,
+      };
       await firestoreinstance
           .collection('Utilisateur')
           .doc(widget.correspondant!.uid)
@@ -412,6 +557,17 @@ class _ChattingState extends State<Chatting> {
     } on Exception catch (e) {
       isCharging.value = false;
     }
+  }
+
+  setVu(String? uid) async {
+    await firestoreinstance
+        .collection('Utilisateur')
+        .doc(user!.uid)
+        .collection('Correspondant')
+        .doc(widget.correspondant!.uid)
+        .collection('Discussion')
+        .doc(uid!)
+        .update({'vu': true});
   }
 
   Widget build(BuildContext context) {
@@ -434,8 +590,10 @@ class _ChattingState extends State<Chatting> {
             }
             List<Message> listMessage = [];
             if (snapshot.hasData) {
-              for (var i in snapshot.data!.docs)
+              for (var i in snapshot.data!.docs) {
                 listMessage.add(Message.fromMap(i.data()));
+                if (!i.data()['vu']) setVu(i.id);
+              }
             }
             return ListView.builder(
                 reverse: true,
