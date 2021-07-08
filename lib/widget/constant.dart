@@ -7,11 +7,9 @@ class Loading extends StatelessWidget {
   final Color? color;
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: SpinKitThreeBounce(
-        color: color ?? Theme.of(context).primaryColor,
-        size: 30.0,
-      ),
+    return SpinKitThreeBounce(
+      color: color ?? Theme.of(context).primaryColor,
+      size: 25.0,
     );
   }
 }
@@ -45,6 +43,60 @@ class ErrorFullScreen extends StatelessWidget {
               .textTheme
               .headline6!
               .copyWith(color: Colors.red),
+        ),
+      ),
+    );
+  }
+}
+
+class LoadingConversation extends StatelessWidget {
+  const LoadingConversation({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      onTap: () {},
+      contentPadding: EdgeInsets.symmetric(horizontal: 0),
+      trailing: Container(
+        child: CircleAvatar(
+          radius: 9,
+          backgroundColor: Theme.of(context).primaryColor.withOpacity(0.3),
+        ),
+      ),
+      leading: CircleAvatar(
+        backgroundColor: Theme.of(context).primaryColor.withOpacity(0.3),
+      ),
+      title: Container(
+        height: 17,
+        width: 170,
+        decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor.withOpacity(0.3),
+            borderRadius: BorderRadius.all(Radius.circular(10))),
+      ),
+      subtitle: Container(
+        height: 13,
+        width: 170,
+        decoration: BoxDecoration(
+            color: Theme.of(context).primaryColor.withOpacity(0.3),
+            borderRadius: BorderRadius.all(Radius.circular(10))),
+      ),
+    );
+  }
+}
+
+//
+class IntroChatting extends StatelessWidget {
+  const IntroChatting({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Text(
+          'Bienvenue sur LYLA',
+          style: Get.isDarkMode
+              ? ThemeData.dark().textTheme.headline4
+              : ThemeData.light().textTheme.headline4,
         ),
       ),
     );

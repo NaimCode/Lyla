@@ -71,7 +71,8 @@ class Lyla extends StatelessWidget {
           title: 'Lyla',
           theme: ThemeData.light().copyWith(
             textTheme: TextTheme(
-                bodyText1: GoogleFonts.roboto(color: Colors.black87),
+                bodyText1: GoogleFonts.rubik(
+                    fontSize: 16, color: Colors.black87, wordSpacing: 2),
                 headline4: GoogleFonts.spartan(
                     fontWeight: FontWeight.bold, color: Colors.black)),
             primaryColor: state.getColor(),
@@ -79,7 +80,8 @@ class Lyla extends StatelessWidget {
           themeMode: state.getThemeMode(),
           darkTheme: ThemeData.dark().copyWith(
             textTheme: TextTheme(
-                bodyText1: GoogleFonts.roboto(color: Colors.white70),
+                bodyText1: GoogleFonts.rubik(
+                    fontSize: 16, color: Colors.white70, wordSpacing: 2),
                 headline4: GoogleFonts.spartan(
                     fontWeight: FontWeight.bold,
                     color: ThemeData.dark().textTheme.headline4!.color)),

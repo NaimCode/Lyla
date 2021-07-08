@@ -208,8 +208,8 @@ class Message {
   }
 
 //? To know if this message is from the current user
-  bool isMine(Utilisateur? user) {
-    if (user!.uid == sender)
+  bool isMine(String? user) {
+    if (user! == sender)
       return true;
     else
       return false;
