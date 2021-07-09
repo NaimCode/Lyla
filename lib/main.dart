@@ -15,8 +15,10 @@ import 'package:social_message/login.dart';
 import 'package:social_message/widget/constant.dart';
 
 import 'body.dart';
+import 'controllers/cubit/chatting_cubit.dart';
 import 'controllers/functions/initialisation.dart';
 import 'data/internal.dart';
+import 'globalVariable.dart';
 import 'service/authentification.dart';
 
 void main() async {
@@ -67,39 +69,42 @@ class Lyla extends StatelessWidget {
           listener: (context, state) {
         // TODO: implement listener
       }, builder: (context, state) {
-        return GetMaterialApp(
-          title: 'Lyla',
-          theme: ThemeData.light().copyWith(
-            textTheme: TextTheme(
-                bodyText1: GoogleFonts.rubik(
-                    fontSize: 16, color: Colors.black87, wordSpacing: 2),
-                headline4: GoogleFonts.spartan(
-                    fontWeight: FontWeight.bold, color: Colors.black)),
-            primaryColor: state.getColor(),
+        return BlocProvider<ChattingCubit>(
+          create: (context) => ChattingCubit(corresGlobal),
+          child: GetMaterialApp(
+            title: 'Lyla',
+            theme: ThemeData.light().copyWith(
+              textTheme: TextTheme(
+                  bodyText1: GoogleFonts.rubik(
+                      fontSize: 16, color: Colors.black87, wordSpacing: 2),
+                  headline4: GoogleFonts.spartan(
+                      fontWeight: FontWeight.bold, color: Colors.black)),
+              primaryColor: state.getColor(),
+            ),
+            themeMode: state.getThemeMode(),
+            darkTheme: ThemeData.dark().copyWith(
+              textTheme: TextTheme(
+                  bodyText1: GoogleFonts.rubik(
+                      fontSize: 16, color: Colors.white70, wordSpacing: 2),
+                  headline4: GoogleFonts.spartan(
+                      fontWeight: FontWeight.bold,
+                      color: ThemeData.dark().textTheme.headline4!.color)),
+            ),
+            home: StreamBuilder<User?>(
+                stream: firebaseUser.authStateChanges,
+                builder: (context, s) {
+                  if (s.connectionState == ConnectionState.waiting)
+                    return LoadingFullScreen();
+                  if (!s.hasData)
+                    return Body(content: Login());
+                  else
+                    return Provider<User?>(
+                      create: (_) => s.data,
+                      child: Body(content: Home()),
+                    );
+                }),
+            debugShowCheckedModeBanner: false,
           ),
-          themeMode: state.getThemeMode(),
-          darkTheme: ThemeData.dark().copyWith(
-            textTheme: TextTheme(
-                bodyText1: GoogleFonts.rubik(
-                    fontSize: 16, color: Colors.white70, wordSpacing: 2),
-                headline4: GoogleFonts.spartan(
-                    fontWeight: FontWeight.bold,
-                    color: ThemeData.dark().textTheme.headline4!.color)),
-          ),
-          home: StreamBuilder<User?>(
-              stream: firebaseUser.authStateChanges,
-              builder: (context, s) {
-                if (s.connectionState == ConnectionState.waiting)
-                  return LoadingFullScreen();
-                if (!s.hasData)
-                  return Body(content: Login());
-                else
-                  return Provider<User?>(
-                    create: (_) => s.data,
-                    child: Body(content: Home()),
-                  );
-              }),
-          debugShowCheckedModeBanner: false,
         );
       }),
     );

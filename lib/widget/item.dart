@@ -13,7 +13,8 @@ import 'package:provider/provider.dart';
 import 'constant.dart';
 
 class DiscussionSpecialItem extends StatefulWidget {
-  const DiscussionSpecialItem({
+  DiscussionSpecialItem({
+    required this.type,
     required this.description,
     required this.correspondant,
     Key? key,
@@ -21,6 +22,7 @@ class DiscussionSpecialItem extends StatefulWidget {
 
   final String correspondant;
   final String description;
+  final String type;
 
   @override
   _DiscussionSpecialItemState createState() => _DiscussionSpecialItemState();
@@ -67,9 +69,51 @@ class _DiscussionSpecialItemState extends State<DiscussionSpecialItem> {
                 widget.correspondant.printInfo();
                 return ListTile(
                   selected: utilisateur.uid == widget.correspondant,
-                  onTap: () {
-                    corresGlobal = utilisateur;
-                    BlocProvider.of<ChattingCubit>(context).select(utilisateur);
+                  onTap: () async {
+                    switch (widget.type) {
+                      case 'Discussion':
+                        corresGlobal = utilisateur;
+                        BlocProvider.of<ChattingCubit>(context)
+                            .select(utilisateur);
+                        break;
+                      case 'New Friend':
+                        DocumentReference<Map<String, dynamic>> doc =
+                            firestoreinstance
+                                .collection('Utilisateur')
+                                .doc(user.uid)
+                                .collection('Correspondant')
+                                .doc(widget.correspondant);
+                        await doc.get().then((value) async {
+                          if (!value.exists) {
+                            doc.set({
+                              'email': utilisateur!.email,
+                              'uid': widget.correspondant,
+                            });
+                            await firestoreinstance
+                                .collection('Utilisateur')
+                                .doc(user.uid)
+                                .collection('Correspondant')
+                                .doc(widget.correspondant)
+                                .collection('Discussion')
+                                .add({
+                              'sender': widget.correspondant,
+                              'response': null,
+                              'vu': true,
+                              'attachmentType': null,
+                              'attachment': null,
+                              'date': Timestamp.now(),
+                              'content': 'Salut je suis ${utilisateur.nom}',
+                            });
+                          }
+                        });
+
+                        corresGlobal = utilisateur;
+                        BlocProvider.of<ChattingCubit>(context)
+                            .select(utilisateur);
+                        Get.back();
+                        break;
+                      default:
+                    }
                   },
                   dense: true,
                   contentPadding:
@@ -99,9 +143,21 @@ class _DiscussionSpecialItemState extends State<DiscussionSpecialItem> {
                             ],
                           ),
                   ),
-                  leading: CircleAvatar(
-                    backgroundImage: NetworkImage(utilisateur.image!),
-                  ),
+                  leading: utilisateur.image == null
+                      ? CircleAvatar(
+                          backgroundColor:
+                              Theme.of(context).primaryColor.withOpacity(0.7),
+                          child: Text(
+                            utilisateur.nom![0],
+                            style: Theme.of(context)
+                                .textTheme
+                                .headline4!
+                                .copyWith(fontSize: 20),
+                          ),
+                        )
+                      : CircleAvatar(
+                          backgroundImage: NetworkImage(utilisateur.image!),
+                        ),
                   title: Text(
                     utilisateur.nom!,
                     style: Theme.of(context).textTheme.bodyText1!.copyWith(

@@ -118,7 +118,23 @@ class AddFriend extends StatefulWidget {
 class _AddFriendState extends State<AddFriend> {
   TextEditingController search = TextEditingController();
   var searchText = ''.obs;
-  List<Utilisateur> list = [];
+  var list = [].obs;
+  var listInit = [];
+
+  getFilter(String s, List l) {
+    List<Utilisateur> listFilter = [];
+    if (s.isEmpty || s == "")
+      return listInit;
+    else {
+      for (var i in l) {
+        if (i!.nom!.toLowerCase().contains(s.toLowerCase()) ||
+            i.email!.toLowerCase().contains(s.toLowerCase())) listFilter.add(i);
+      }
+      return listFilter;
+    }
+  }
+
+  var keyForm = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<QuerySnapshot<Map<String, dynamic>>>(
@@ -126,39 +142,79 @@ class _AddFriendState extends State<AddFriend> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting)
             return Center(
-              child: Loading(),
+              child: LoadingFullScreen(),
             );
           if (snapshot.hasData) {
             for (var i in snapshot.data!.docs) {
-              list.add(Utilisateur.fromMap(i.data()));
+              listInit.add(Utilisateur.fromMap(i.data()));
+              list.value = listInit;
             }
           }
-          return Column(children: [
-            Material(
-              elevation: 4,
-              child: TextFormField(
-                controller: search,
-                onChanged: (v) {
-                  searchText.value = v;
-                },
-                decoration: InputDecoration(
-                  border: InputBorder.none,
-                  hintText: 'Recherche',
-                  filled: true,
-                  suffixIcon: IconButton(
-                      onPressed: () {}, icon: Icon(FontAwesomeIcons.search)),
+          return Scaffold(
+            floatingActionButton: null,
+            appBar: AppBar(
+              centerTitle: true,
+              title: Form(
+                key: keyForm,
+                child: Card(
+                  elevation: 5,
+                  child: Container(
+                    constraints: BoxConstraints(maxWidth: 800),
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    child: TextFormField(
+                      style: Theme.of(context).textTheme.bodyText1,
+                      onChanged: (v) {
+                        list.value = getFilter(v, listInit);
+                      },
+                      controller: search,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Recherche',
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
-            ListView.builder(
-                shrinkWrap: true,
-                itemCount: list.length,
-                itemBuilder: (context, index) {
-                  return DiscussionSpecialItem(
-                      description: list[index].email!,
-                      correspondant: list[index].uid!);
-                })
-          ]);
+            body: Center(
+                child: Obx(
+              () => Column(children: [
+                AnimatedSwitcher(
+                  duration: Duration(milliseconds: 500),
+                  child: list.value == listInit
+                      ? Container(
+                          constraints: BoxConstraints(maxWidth: 800),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          child: Text(
+                            'Suggestion',
+                            style: Theme.of(context).textTheme.headline4,
+                          ),
+                        )
+                      : Container(
+                          constraints: BoxConstraints(maxWidth: 800),
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          child: Text(
+                            '(${list.length}) résultat(s) pour: ${search.text}',
+                            style: Theme.of(context).textTheme.headline6,
+                          ),
+                        ),
+                ),
+                Expanded(
+                  child: Container(
+                      constraints: BoxConstraints(maxWidth: 800),
+                      child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: list.length,
+                          itemBuilder: (context, index) {
+                            return DiscussionSpecialItem(
+                                type: 'New Friend',
+                                description: list[index].email!,
+                                correspondant: list[index].uid!);
+                          })),
+                ),
+              ]),
+            )),
+          );
         });
   }
 }
