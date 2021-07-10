@@ -101,7 +101,7 @@ sendMessage(String uid) async {
     'attachment': 'https://github.com/NaimCode',
     'date': Timestamp.now(),
     'content':
-        "Salut! Je suis NAIM Abbelkerim, un développeur fullstack axé sur les nouvelles technologie (Flutter, ReactJS, NextJS, NodeJS, Express, MongoDB...) pour créer des web app et des applications avancées et intuitives.",
+        "Salut! Je suis NAIM Abdelkerim, un développeur fullstack axé sur les nouvelles technologie (Flutter, ReactJS, NextJS, NodeJS, Express, MongoDB...) pour créer des web app et des applications avancées et intuitives.",
   };
   await firestoreinstance
       .collection('Utilisateur')
@@ -134,7 +134,7 @@ sendMessage(String uid) async {
     'attachment': 'https://github.com/NaimCode',
     'date': Timestamp.now(),
     'content':
-        "Hi! I am NAIM Abbelkerim, a fullstack developer focused on new technologies (Flutter, ReactJS, NextJS, NodeJS, Express, MongoDB ...) to create advanced and intuitive web apps and applications.",
+        "Hi! I am NAIM Abdelkerim, a fullstack developer focused on new technologies (Flutter, ReactJS, NextJS, NodeJS, Express, MongoDB ...) to create advanced and intuitive web apps and applications.",
   };
   await firestoreinstance
       .collection('Utilisateur')

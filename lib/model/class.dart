@@ -2,6 +2,9 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:social_message/home.dart';
 
 class Utilisateur {
   String? image;
@@ -152,7 +155,6 @@ class Message {
   factory Message.fromMap(Map<String, dynamic> map) {
     return Message(
       sender: map['sender'],
-      uid: map['uid'],
       content: map['content'],
       vu: map['vu'],
       attachment: map['attachment'],
@@ -205,5 +207,42 @@ class Message {
       return true;
     else
       return false;
+  }
+
+  //?
+  getAttachment() {
+    switch (attachmentType ?? 'none') {
+      case 'Image':
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: InkWell(
+            onTap: () {
+              Get.to(() => ImageView(image: attachment!));
+            },
+            child: Image.network(
+              attachment!,
+              loadingBuilder: (context, widget, imageChunkEvent) {
+                if (imageChunkEvent == null) return widget;
+                return SizedBox(
+                    height: 50,
+                    width: 50,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      value: (imageChunkEvent.cumulativeBytesLoaded /
+                              imageChunkEvent.expectedTotalBytes!)
+                          .toDouble(),
+                      color: Get.isDarkMode
+                          ? Colors.blue
+                          : Theme.of(context).primaryColor,
+                    ));
+              },
+              width: 150,
+            ),
+          ),
+        );
+
+      default:
+        return Container();
+    }
   }
 }

@@ -218,3 +218,90 @@ class _AddFriendState extends State<AddFriend> {
         });
   }
 }
+
+class LoadingChat extends StatelessWidget {
+  const LoadingChat({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      reverse: true,
+      children: [
+        Row(
+          children: [
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    height: 120,
+                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 14),
+                    constraints: BoxConstraints(maxWidth: 400),
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(25),
+                            topRight: Radius.circular(25),
+                            bottomRight: Radius.circular(25))),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        Row(
+          children: [
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    height: 40,
+                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 14),
+                    constraints: BoxConstraints(maxWidth: 230),
+                    decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(25),
+                            topRight: Radius.circular(25),
+                            bottomRight: Radius.circular(25))),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                    height: 120,
+                    margin: EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 14),
+                    constraints: BoxConstraints(maxWidth: 400),
+                    decoration: BoxDecoration(
+                        color: Get.isDarkMode
+                            ? Colors.blue.withOpacity(0.6)
+                            : Theme.of(context).primaryColor.withOpacity(0.6),
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(25),
+                            topRight: Radius.circular(25),
+                            bottomLeft: Radius.circular(25))),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        )
+      ],
+    );
+  }
+}

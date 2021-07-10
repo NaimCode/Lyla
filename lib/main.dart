@@ -13,7 +13,7 @@ import 'package:social_message/controllers/cubit/settings_cubit.dart';
 import 'package:social_message/home.dart';
 import 'package:social_message/login.dart';
 import 'package:social_message/widget/constant.dart';
-
+import 'package:timeago/timeago.dart' as timeago;
 import 'body.dart';
 import 'controllers/cubit/chatting_cubit.dart';
 import 'controllers/functions/initialisation.dart';
@@ -28,7 +28,7 @@ void main() async {
         ? HydratedStorage.webStorageDirectory
         : await getTemporaryDirectory(),
   );
-
+  timeago.setLocaleMessages('fr', timeago.FrMessages());
   // await Hive.openBox('Settings');
   // initHive();
   //print(FacebookAuth.i.isWebSdkInitialized);

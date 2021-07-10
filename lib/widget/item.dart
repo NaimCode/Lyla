@@ -155,8 +155,16 @@ class _DiscussionSpecialItemState extends State<DiscussionSpecialItem> {
                                 .copyWith(fontSize: 20),
                           ),
                         )
-                      : CircleAvatar(
-                          backgroundImage: NetworkImage(utilisateur.image!),
+                      : InkWell(
+                          hoverColor: Colors.transparent,
+                          highlightColor: Colors.transparent,
+                          splashColor: Colors.transparent,
+                          onTap: () {
+                            Get.to(() => ImageView(image: utilisateur!.image!));
+                          },
+                          child: CircleAvatar(
+                            backgroundImage: NetworkImage(utilisateur.image!),
+                          ),
                         ),
                   title: Text(
                     utilisateur.nom!,
