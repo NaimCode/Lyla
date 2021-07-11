@@ -98,7 +98,8 @@ class Lyla extends StatelessWidget {
                   if (s.connectionState == ConnectionState.waiting)
                     return LoadingFullScreen();
                   if (!s.hasData)
-                    return Body(content: Login());
+                    return Provider<User?>(
+                        create: (_) => null, child: Body(content: Login()));
                   else
                     return Provider<User?>(
                       create: (_) => s.data,
