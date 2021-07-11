@@ -14,6 +14,7 @@ import 'package:social_message/home.dart';
 import 'package:social_message/login.dart';
 import 'package:social_message/widget/constant.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:url_strategy/url_strategy.dart';
 import 'body.dart';
 import 'controllers/cubit/chatting_cubit.dart';
 import 'controllers/functions/initialisation.dart';
@@ -23,6 +24,7 @@ import 'service/authentification.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  setPathUrlStrategy();
   HydratedBloc.storage = await HydratedStorage.build(
     storageDirectory: kIsWeb
         ? HydratedStorage.webStorageDirectory

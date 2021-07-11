@@ -32,6 +32,7 @@ class _DiscussionSpecialItemState extends State<DiscussionSpecialItem> {
   @override
   Widget build(BuildContext context) {
     User? user = context.watch<User?>();
+    bool isMobile = MediaQuery.of(context).size.width <= 800;
     return FutureBuilder<DocumentSnapshot<Map<String, dynamic>>>(
         future: firestoreinstance
             .collection('Utilisateur')
@@ -72,10 +73,15 @@ class _DiscussionSpecialItemState extends State<DiscussionSpecialItem> {
                   onTap: () async {
                     switch (widget.type) {
                       case 'Discussion':
-                        corresGlobal = utilisateur;
-                        BlocProvider.of<ChattingCubit>(context)
-                            .select(utilisateur);
+                        if (!isMobile) {
+                          corresGlobal = utilisateur;
+                          BlocProvider.of<ChattingCubit>(context)
+                              .select(utilisateur);
+                        } else
+                          Get.to(() =>
+                              Chatting(user: user, correspondant: utilisateur));
                         break;
+
                       case 'New Friend':
                         DocumentReference<Map<String, dynamic>> doc =
                             firestoreinstance

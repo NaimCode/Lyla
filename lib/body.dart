@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
+import 'package:social_message/globalVariable.dart';
+import 'package:social_message/home.dart';
 
 import 'controllers/cubit/settings_cubit.dart';
 import 'data/internal.dart';
@@ -13,6 +16,10 @@ class Body extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: ScaffoldKey,
+      endDrawer: Drawer(
+        child: Profil(user: context.watch<User?>()),
+      ),
       body: Row(
         children: [MenuSection(), Expanded(child: content)],
       ),
@@ -45,7 +52,10 @@ class MenuSection extends StatelessWidget {
               ),
             ),
           ),
-          Expanded(child: Container()),
+          Expanded(
+              child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+          )),
           ...ColorTheme.map((e) => Visibility(
                 visible: Get.isDarkMode ? false : true,
                 child: Padding(

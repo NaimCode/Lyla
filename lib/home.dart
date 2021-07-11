@@ -35,10 +35,10 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     User? user = context.watch<User?>();
-
+    bool isMobile = MediaQuery.of(context).size.width <= 1000;
     return Row(children: [
       Container(
-          width: 300,
+          width: isMobile ? MediaQuery.of(context).size.width - 60 : 300,
           padding: EdgeInsets.symmetric(
             vertical: 25,
           ),
@@ -69,6 +69,19 @@ class _HomeState extends State<Home> {
                           .headline4!
                           .copyWith(fontSize: 20, fontWeight: FontWeight.w300),
                     ),
+                    Expanded(child: Container()),
+                    !isMobile
+                        ? Container()
+                        : IconButton(
+                            onPressed: () {
+                              ScaffoldKey.currentState!.openEndDrawer();
+                            },
+                            icon: Icon(
+                              Icons.menu,
+                              color: Get.isDarkMode
+                                  ? Colors.blue
+                                  : Theme.of(context).primaryColor,
+                            ))
                   ],
                 ),
               ),
@@ -82,7 +95,7 @@ class _HomeState extends State<Home> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Administrateur',
+                      'Administrateurs',
                       style: Theme.of(context).textTheme.headline4!.copyWith(
                           fontSize: 13,
                           fontWeight: FontWeight.w300,
@@ -205,286 +218,303 @@ class _HomeState extends State<Home> {
               )
             ],
           )),
-      Expanded(
-        child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Container(
-              child: BlocBuilder<ChattingCubit, ChattingState>(
-                builder: (context, state) {
-                  return AnimatedSwitcher(
-                    transitionBuilder: (widget, animation) => ScaleTransition(
-                      scale: animation,
-                      child: widget,
+      isMobile
+          ? Container()
+          : Expanded(
+              child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20),
+                  child: Container(
+                    child: BlocBuilder<ChattingCubit, ChattingState>(
+                      builder: (context, state) {
+                        return AnimatedSwitcher(
+                          transitionBuilder: (widget, animation) =>
+                              ScaleTransition(
+                            scale: animation,
+                            child: widget,
+                          ),
+                          duration: Duration(milliseconds: 1000),
+                          child: state.corres == null
+                              ? IntroChatting(
+                                  key: UniqueKey(),
+                                )
+                              : Chatting(
+                                  user: user,
+                                  correspondant: state.corres,
+                                  key: UniqueKey(),
+                                ),
+                        );
+                      },
                     ),
-                    duration: Duration(milliseconds: 1000),
-                    child: state.corres == null
-                        ? IntroChatting(
-                            key: UniqueKey(),
-                          )
-                        : Chatting(
-                            correspondant: state.corres,
-                            key: UniqueKey(),
-                          ),
-                  );
-                },
-              ),
-            )),
-      ),
-      Container(
-          width: 300,
-          padding: EdgeInsets.symmetric(vertical: 25, horizontal: 10),
-          child: Column(
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: Icon(FontAwesomeIcons.userCircle,
-                        color: Get.isDarkMode
-                            ? Colors.white70
-                            : Theme.of(context).primaryColor.withOpacity(0.8)),
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  Text(
-                    'Profil',
-                    style: Theme.of(context)
-                        .textTheme
-                        .headline4!
-                        .copyWith(fontSize: 20, fontWeight: FontWeight.w300),
-                  ),
-                ],
-              ),
-              Divider(),
-              StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
-                  stream: streamUser.doc(user.uid).snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting)
-                      return Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          CircleAvatar(
-                            radius: 100,
-                            backgroundColor:
-                                Theme.of(context).primaryColor.withOpacity(0.3),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Container(
-                            height: 17,
-                            width: 170,
-                            decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .primaryColor
-                                    .withOpacity(0.3),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10))),
-                          ),
-                          SizedBox(
-                            height: 7,
-                          ),
-                          Container(
-                            height: 13,
-                            width: 200,
-                            decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .primaryColor
-                                    .withOpacity(0.3),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10))),
-                          )
-                        ],
-                      );
-                    Utilisateur? utilisateur;
-                    if (snapshot.hasData) {
-                      utilisateur = Utilisateur.fromMap(snapshot.data!.data()!);
-                    }
+                  )),
+            ),
+      isMobile ? Container() : Profil(user: user),
+    ]);
+  }
+}
+
+class Profil extends StatelessWidget {
+  const Profil({
+    Key? key,
+    required this.user,
+  }) : super(key: key);
+
+  final User? user;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        width: 300,
+        padding: EdgeInsets.symmetric(vertical: 25, horizontal: 10),
+        child: Column(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 6),
+                  child: Icon(FontAwesomeIcons.userCircle,
+                      color: Get.isDarkMode
+                          ? Colors.white70
+                          : Theme.of(context).primaryColor.withOpacity(0.8)),
+                ),
+                SizedBox(
+                  width: 20,
+                ),
+                Text(
+                  'Profil',
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline4!
+                      .copyWith(fontSize: 20, fontWeight: FontWeight.w300),
+                ),
+              ],
+            ),
+            Divider(),
+            StreamBuilder<DocumentSnapshot<Map<String, dynamic>>>(
+                stream: streamUser.doc(user!.uid).snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting)
                     return Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        utilisateur!.image == null
-                            ? CircleAvatar(
-                                radius: 100,
-                                backgroundColor: Theme.of(context)
-                                    .primaryColor
-                                    .withOpacity(0.7),
-                                child: Center(
-                                  child: Text(
-                                    utilisateur.nom![0],
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headline4!
-                                        .copyWith(fontSize: 50),
-                                  ),
-                                ),
-                              )
-                            : CircleAvatar(
-                                radius: 100,
-                                backgroundImage: NetworkImage(
-                                  utilisateur.image!,
-                                ),
-                              ),
+                        CircleAvatar(
+                          radius: 100,
+                          backgroundColor:
+                              Theme.of(context).primaryColor.withOpacity(0.3),
+                        ),
                         SizedBox(
                           height: 20,
                         ),
-                        Text(
-                          utilisateur.nom!,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyText1!
-                              .copyWith(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
+                        Container(
+                          height: 17,
+                          width: 170,
+                          decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .primaryColor
+                                  .withOpacity(0.3),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10))),
                         ),
-                        Text(
-                          utilisateur.email!,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyText1!
-                              .copyWith(fontSize: 17, color: Colors.grey),
-                          overflow: TextOverflow.ellipsis,
+                        SizedBox(
+                          height: 7,
+                        ),
+                        Container(
+                          height: 13,
+                          width: 200,
+                          decoration: BoxDecoration(
+                              color: Theme.of(context)
+                                  .primaryColor
+                                  .withOpacity(0.3),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10))),
                         )
                       ],
                     );
-                  }),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 17),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                              primary: Theme.of(context).primaryColor),
-                          onPressed: () {},
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Icon(FontAwesomeIcons.userEdit,
-                                    color: Get.isDarkMode
-                                        ? Colors.white
-                                        : Colors.black,
-                                    size: 18),
-                                Text('Modifier',
-                                    style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        color: Get.isDarkMode
-                                            ? Colors.white
-                                            : Colors.black)),
-                              ],
+                  Utilisateur? utilisateur;
+                  if (snapshot.hasData) {
+                    utilisateur = Utilisateur.fromMap(snapshot.data!.data()!);
+                  }
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      utilisateur!.image == null
+                          ? CircleAvatar(
+                              radius: 100,
+                              backgroundColor: Theme.of(context)
+                                  .primaryColor
+                                  .withOpacity(0.7),
+                              child: Center(
+                                child: Text(
+                                  utilisateur.nom![0],
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .headline4!
+                                      .copyWith(fontSize: 50),
+                                ),
+                              ),
+                            )
+                          : CircleAvatar(
+                              radius: 100,
+                              backgroundImage: NetworkImage(
+                                utilisateur.image!,
+                              ),
                             ),
-                          )),
-                    ),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
-                      child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(primary: Colors.red),
-                          onPressed: () {
-                            Get.defaultDialog(
-                              titleStyle: Theme.of(context).textTheme.headline4,
-                              middleTextStyle:
-                                  Theme.of(context).textTheme.bodyText1,
-                              title: 'Déconnexion',
-                              middleText: 'Confirmez votre décision',
-                              textCancel: 'retour',
-                              cancel: OutlinedButton(
-                                  onPressed: () {
-                                    Get.back();
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 3, horizontal: 5),
-                                    child: Text(
-                                      'retour',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyText1!
-                                          .copyWith(
-                                              color: Get.isDarkMode
-                                                  ? Colors.white70
-                                                  : Colors.black87),
-                                    ),
-                                  )),
-                              confirm: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      elevation: 0, primary: Colors.red),
-                                  onPressed: () async {
-                                    var _auth =
-                                        Authentification(FirebaseAuth.instance);
-                                    await _auth.deconnection();
-                                    Get.back();
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 3, horizontal: 5),
-                                    child: Text(
-                                      'se déconnecter',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyText1!
-                                          .copyWith(
-                                              color: Get.isDarkMode
-                                                  ? Colors.white70
-                                                  : Colors.black87),
-                                    ),
-                                  )),
-                              // textConfirm: 'se déconnecter'
-                            );
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Text('Déconnexion',
-                                    style: TextStyle(
-                                        fontSize: 14,
-                                        color: Get.isDarkMode
-                                            ? Colors.white
-                                            : Colors.black)),
-                                Icon(
-                                  FontAwesomeIcons.signOutAlt,
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Text(
+                        utilisateur.nom!,
+                        style: Theme.of(context).textTheme.bodyText1!.copyWith(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        utilisateur.email!,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyText1!
+                            .copyWith(fontSize: 17, color: Colors.grey),
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    ],
+                  );
+                }),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 17),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                            primary: Theme.of(context).primaryColor),
+                        onPressed: () {},
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(FontAwesomeIcons.userEdit,
                                   color: Get.isDarkMode
                                       ? Colors.white
                                       : Colors.black,
-                                  size: 18,
-                                )
-                              ],
-                            ),
-                          )),
-                    ),
-                  ],
-                ),
+                                  size: 18),
+                              Text('Modifier',
+                                  style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      color: Get.isDarkMode
+                                          ? Colors.white
+                                          : Colors.black)),
+                            ],
+                          ),
+                        )),
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(primary: Colors.red),
+                        onPressed: () {
+                          Get.defaultDialog(
+                            titleStyle: Theme.of(context).textTheme.headline4,
+                            middleTextStyle:
+                                Theme.of(context).textTheme.bodyText1,
+                            title: 'Déconnexion',
+                            middleText: 'Confirmez votre décision',
+                            textCancel: 'retour',
+                            cancel: OutlinedButton(
+                                onPressed: () {
+                                  Get.back();
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 3, horizontal: 5),
+                                  child: Text(
+                                    'retour',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyText1!
+                                        .copyWith(
+                                            color: Get.isDarkMode
+                                                ? Colors.white70
+                                                : Colors.black87),
+                                  ),
+                                )),
+                            confirm: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    elevation: 0, primary: Colors.red),
+                                onPressed: () async {
+                                  var _auth =
+                                      Authentification(FirebaseAuth.instance);
+                                  await _auth.deconnection();
+                                  Get.back();
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 3, horizontal: 5),
+                                  child: Text(
+                                    'se déconnecter',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyText1!
+                                        .copyWith(
+                                            color: Get.isDarkMode
+                                                ? Colors.white70
+                                                : Colors.black87),
+                                  ),
+                                )),
+                            // textConfirm: 'se déconnecter'
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text('Déconnexion',
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Get.isDarkMode
+                                          ? Colors.white
+                                          : Colors.black)),
+                              Icon(
+                                FontAwesomeIcons.signOutAlt,
+                                color: Get.isDarkMode
+                                    ? Colors.white
+                                    : Colors.black,
+                                size: 18,
+                              )
+                            ],
+                          ),
+                        )),
+                  ),
+                ],
               ),
+            ),
 
-              // Text(
-              //   'Liste D\'amis',
-              //   style: Theme.of(context)
-              //       .textTheme
-              //       .headline4!
-              //       .copyWith(fontSize: 25, fontWeight: FontWeight.w300),
-              // ),
-              Divider(),
-            ],
-          )),
-    ]);
+            // Text(
+            //   'Liste D\'amis',
+            //   style: Theme.of(context)
+            //       .textTheme
+            //       .headline4!
+            //       .copyWith(fontSize: 25, fontWeight: FontWeight.w300),
+            // ),
+            Divider(),
+          ],
+        ));
   }
 }
 
 class Chatting extends StatefulWidget {
   const Chatting({
+    required this.user,
     required this.correspondant,
     Key? key,
   }) : super(key: key);
   final Utilisateur? correspondant;
+  final User? user;
   @override
   _ChattingState createState() => _ChattingState();
 }
@@ -682,7 +712,8 @@ class _ChattingState extends State<Chatting> {
   }
 
   Widget build(BuildContext context) {
-    user = context.watch<User?>();
+    user = widget.user;
+    bool isMobile = MediaQuery.of(context).size.width <= 1000;
     return Scaffold(
       backgroundColor: Theme.of(context).highlightColor,
       body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
@@ -980,6 +1011,7 @@ class _ChattingState extends State<Chatting> {
           ),
         ),
       ),
+      floatingActionButton: null,
       appBar: AppBar(
         centerTitle: true,
         title: Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
@@ -1002,10 +1034,11 @@ class _ChattingState extends State<Chatting> {
           ),
           Text(
             widget.correspondant!.nom!,
-            style: Theme.of(context)
-                .textTheme
-                .headline4!
-                .copyWith(fontSize: 20, fontWeight: FontWeight.w200),
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.headline4!.copyWith(
+                fontSize: isMobile ? 17 : 20,
+                fontWeight: FontWeight.w200,
+                color: Colors.white),
           ),
         ]),
       ),
