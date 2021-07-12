@@ -95,7 +95,7 @@ class _HomeState extends State<Home> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Administrateurs',
+                      'Développeurs',
                       style: Theme.of(context).textTheme.headline4!.copyWith(
                           fontSize: 13,
                           fontWeight: FontWeight.w300,
@@ -252,14 +252,226 @@ class _HomeState extends State<Home> {
   }
 }
 
+class EditProfil extends StatefulWidget {
+  const EditProfil({required this.user, Key? key}) : super(key: key);
+  final Utilisateur? user;
+
+  @override
+  _EditProfilState createState() => _EditProfilState();
+}
+
+class _EditProfilState extends State<EditProfil> {
+  bool isCharging = false;
+  TextEditingController nom = TextEditingController();
+  var image;
+  final picker = ImagePicker();
+  Utilisateur? user;
+  pickAvatar() {
+    var uploadImage = FileUploadInputElement()..accept = '.jpg,.png,.jpeg';
+    uploadImage.click();
+    uploadImage.onChange.listen((event) async {
+      var file = uploadImage.files!.first;
+
+      var path = basename(file.name);
+      final reader = FileReader();
+      reader.readAsArrayBuffer(file);
+      reader.onLoad.listen((event) {
+        print(event.loaded.toString());
+
+        setState(() {
+          image = {'uint8List': reader.result, 'path': path};
+        });
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    user = widget.user;
+    // TODO: implement initState
+    super.initState();
+  }
+
+  var keyForm = GlobalKey<FormState>();
+  @override
+  Widget build(BuildContext context) {
+    bool isMobile = MediaQuery.of(context).size.width < 800;
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text(
+          widget.user!.nom!,
+          overflow: TextOverflow.ellipsis,
+          style: Theme.of(context).textTheme.headline4!.copyWith(
+              fontSize: isMobile ? 17 : 20,
+              fontWeight: FontWeight.w200,
+              color: Colors.white),
+        ),
+      ),
+      body: Form(
+        key: keyForm,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            image == null
+                ? CircleAvatar(
+                    radius: 150,
+                    backgroundColor:
+                        Theme.of(context).primaryColor.withOpacity(0.3),
+                    child: Center(
+                      child: IconButton(
+                        tooltip: 'Ajouter une photo',
+                        onPressed: pickAvatar,
+                        icon: Icon(Icons.add_a_photo_rounded,
+                            color: Get.isDarkMode ? null : Colors.black54),
+                      ),
+                    ),
+                  )
+                : user!.image != null
+                    ? CircleAvatar(
+                        radius: 150,
+                        backgroundColor:
+                            Theme.of(context).primaryColor.withOpacity(0.3),
+                        backgroundImage: NetworkImage(widget.user!.image!),
+                        child: Stack(
+                          alignment: Alignment.topRight,
+                          children: [
+                            FloatingActionButton(
+                              backgroundColor: Colors.red,
+                              tooltip: 'Supprimer la photo',
+                              onPressed: () {
+                                setState(() {
+                                  user!.image = null;
+                                });
+                              },
+                              child: Icon(Icons.remove,
+                                  color:
+                                      Get.isDarkMode ? null : Colors.black54),
+                            ),
+                          ],
+                        ),
+                      )
+                    : CircleAvatar(
+                        radius: 150,
+                        backgroundColor:
+                            Theme.of(context).primaryColor.withOpacity(0.3),
+                        backgroundImage: MemoryImage(image['uint8List']),
+                        child: Stack(
+                          alignment: Alignment.topRight,
+                          children: [
+                            FloatingActionButton(
+                              backgroundColor: Colors.red,
+                              tooltip: 'Supprimer la photo',
+                              onPressed: () {
+                                setState(() {
+                                  image = null;
+                                });
+                              },
+                              child: Icon(Icons.remove,
+                                  color:
+                                      Get.isDarkMode ? null : Colors.black54),
+                            ),
+                          ],
+                        ),
+                      ),
+            SizedBox(
+              height: 10,
+            ),
+            TextFormField(
+              controller: nom,
+              validator: (v) {
+                if (v!.length < 4) return 'Au moins 4 caractères';
+                return null;
+              },
+              style: TextStyle(
+                  color: Get.isDarkMode ? Colors.white : Colors.black),
+              decoration: InputDecoration(
+                filled: true,
+                labelText: 'Nom',
+              ),
+            ),
+            SizedBox(
+              height: 30,
+            ),
+            isCharging
+                ? Loading()
+                : Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                primary: Theme.of(context).primaryColor),
+                            onPressed: () async {
+                              if (keyForm.currentState!.validate()) {
+                                setState(() {
+                                  isCharging = true;
+                                });
+                                // var check = await _auth.enregistrementAuth(
+                                //     _email.text, _password.text, nom.text, image);
+                                // switch (check) {
+                                //   case 'Success':
+                                //     Get.rawSnackbar(
+                                //         title: 'Inscription réussie',
+                                //         message: 'Content de vous voir');
+                                //     break;
+                                //   case 'Exist':
+                                //     _index.value = 0;
+                                //     break;
+                                //   default:
+                                //     _index.value = 0;
+                                // }
+                                setState(() {
+                                  isCharging = false;
+                                });
+                              }
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text('Modifier',
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color: Get.isDarkMode
+                                              ? Colors.white
+                                              : Colors.black)),
+                                  isCharging
+                                      ? Loading(
+                                          color: Get.isDarkMode
+                                              ? Colors.white
+                                              : Colors.black,
+                                        )
+                                      : Icon(
+                                          Icons.arrow_forward_ios_sharp,
+                                          color: Get.isDarkMode
+                                              ? Colors.white
+                                              : Colors.black,
+                                          size: 23,
+                                        )
+                                ],
+                              ),
+                            )),
+                      ),
+                    ],
+                  )
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class Profil extends StatelessWidget {
-  const Profil({
+  Profil({
     Key? key,
     required this.user,
   }) : super(key: key);
 
   final User? user;
-
+  Utilisateur? utilisateur;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -330,7 +542,7 @@ class Profil extends StatelessWidget {
                         )
                       ],
                     );
-                  Utilisateur? utilisateur;
+
                   if (snapshot.hasData) {
                     utilisateur = Utilisateur.fromMap(snapshot.data!.data()!);
                   }
@@ -345,7 +557,7 @@ class Profil extends StatelessWidget {
                                   .withOpacity(0.7),
                               child: Center(
                                 child: Text(
-                                  utilisateur.nom![0],
+                                  utilisateur!.nom![0],
                                   style: Theme.of(context)
                                       .textTheme
                                       .headline4!
@@ -356,19 +568,19 @@ class Profil extends StatelessWidget {
                           : CircleAvatar(
                               radius: 100,
                               backgroundImage: NetworkImage(
-                                utilisateur.image!,
+                                utilisateur!.image!,
                               ),
                             ),
                       SizedBox(
                         height: 20,
                       ),
                       Text(
-                        utilisateur.nom!,
+                        utilisateur!.nom!,
                         style: Theme.of(context).textTheme.bodyText1!.copyWith(
                             fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        utilisateur.email!,
+                        utilisateur!.email!,
                         style: Theme.of(context)
                             .textTheme
                             .bodyText1!
@@ -387,7 +599,13 @@ class Profil extends StatelessWidget {
                     child: OutlinedButton(
                         style: OutlinedButton.styleFrom(
                             primary: Theme.of(context).primaryColor),
-                        onPressed: () {},
+                        onPressed: () {
+                          Get.defaultDialog(
+                              title: '',
+                              content: EditProfilDialog(
+                                user: utilisateur,
+                              ));
+                        },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 4),
                           child: Row(

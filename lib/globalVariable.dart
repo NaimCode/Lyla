@@ -7,5 +7,5 @@ import 'data/internal.dart';
 import 'model/class.dart';
 
 Rx<Widget?> DiscussionContent = null.obs;
-Utilisateur? corresGlobal = Utilisateur(nom: 'Naim Abdelkerim', uid: naimUid);
+Utilisateur? corresGlobal;
 GlobalKey<ScaffoldState> ScaffoldKey = GlobalKey();

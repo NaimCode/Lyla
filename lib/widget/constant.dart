@@ -1,8 +1,13 @@
+import 'dart:html';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart';
 import 'package:social_message/model/class.dart';
 import 'package:social_message/service/authentification.dart';
 import 'package:social_message/widget/item.dart';
@@ -302,6 +307,255 @@ class LoadingChat extends StatelessWidget {
           ],
         )
       ],
+    );
+  }
+}
+
+class EditProfilDialog extends StatefulWidget {
+  const EditProfilDialog({required this.user, Key? key}) : super(key: key);
+  final Utilisateur? user;
+
+  @override
+  _EditProfilDialogState createState() => _EditProfilDialogState();
+}
+
+class _EditProfilDialogState extends State<EditProfilDialog> {
+  bool isCharging = false;
+  TextEditingController? nom;
+  var image;
+  final picker = ImagePicker();
+  Utilisateur? user;
+  pickAvatar() {
+    var uploadImage = FileUploadInputElement()..accept = '.jpg,.png,.jpeg';
+    uploadImage.click();
+    uploadImage.onChange.listen((event) async {
+      var file = uploadImage.files!.first;
+
+      var path = basename(file.name);
+      final reader = FileReader();
+      reader.readAsArrayBuffer(file);
+      reader.onLoad.listen((event) {
+        print(event.loaded.toString());
+
+        setState(() {
+          image = {'uint8List': reader.result, 'path': path};
+        });
+      });
+    });
+  }
+
+  edit() async {
+    String? url;
+    if (image != null) {
+      var ref = FirebaseStorage.instance.ref().child('Image/${image['path']}');
+      // image = reader.result;
+      await ref.putData(image['uint8List']).whenComplete(() async {
+        url = await ref.getDownloadURL();
+      });
+    }
+
+    var utilisateurs = {
+      'nom': nom!.text,
+      'image': url ?? user!.image,
+    };
+    await firestoreinstance
+        .collection('Utilisateur')
+        .doc(user!.uid)
+        .update(utilisateurs);
+    Get.back();
+  }
+
+  @override
+  void initState() {
+    user = widget.user;
+    nom = TextEditingController(text: widget.user!.nom);
+    // TODO: implement initState
+    super.initState();
+  }
+
+  var keyForm = GlobalKey<FormState>();
+  @override
+  Widget build(BuildContext context) {
+    bool isMobile = MediaQuery.of(context).size.width < 800;
+    return Container(
+      width: isMobile ? MediaQuery.of(context).size.width - 50 : 400,
+      child: Form(
+        key: keyForm,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            user!.image != null
+                ? CircleAvatar(
+                    radius: 150,
+                    backgroundColor:
+                        Theme.of(context).primaryColor.withOpacity(0.3),
+                    backgroundImage: NetworkImage(widget.user!.image!),
+                    child: Stack(
+                      alignment: Alignment.topRight,
+                      children: [
+                        FloatingActionButton(
+                          backgroundColor: Colors.red,
+                          tooltip: 'Supprimer la photo',
+                          onPressed: () {
+                            setState(() {
+                              user!.image = null;
+                            });
+                          },
+                          child: Icon(Icons.remove,
+                              color: Get.isDarkMode ? null : Colors.black54),
+                        ),
+                      ],
+                    ),
+                  )
+                : image == null
+                    ? CircleAvatar(
+                        radius: 150,
+                        backgroundColor:
+                            Theme.of(context).primaryColor.withOpacity(0.3),
+                        child: Center(
+                          child: IconButton(
+                            tooltip: 'Ajouter une photo',
+                            onPressed: pickAvatar,
+                            icon: Icon(Icons.add_a_photo_rounded,
+                                color: Get.isDarkMode ? null : Colors.black54),
+                          ),
+                        ),
+                      )
+                    : CircleAvatar(
+                        radius: 150,
+                        backgroundColor:
+                            Theme.of(context).primaryColor.withOpacity(0.3),
+                        backgroundImage: MemoryImage(image['uint8List']),
+                        child: Stack(
+                          alignment: Alignment.topRight,
+                          children: [
+                            FloatingActionButton(
+                              backgroundColor: Colors.red,
+                              tooltip: 'Supprimer la photo',
+                              onPressed: () {
+                                setState(() {
+                                  image = null;
+                                  user = user!.copyWith(image: null);
+                                });
+                              },
+                              child: Icon(Icons.remove,
+                                  color:
+                                      Get.isDarkMode ? null : Colors.black54),
+                            ),
+                          ],
+                        ),
+                      ),
+            SizedBox(
+              height: 10,
+            ),
+            TextFormField(
+              controller: nom,
+              validator: (v) {
+                if (v!.length < 4) return 'Au moins 4 caractères';
+                return null;
+              },
+              style: TextStyle(
+                  color: Get.isDarkMode ? Colors.white : Colors.black),
+              decoration: InputDecoration(
+                filled: true,
+                labelText: 'Nom',
+              ),
+            ),
+            SizedBox(
+              height: 30,
+            ),
+            isCharging
+                ? Loading()
+                : Row(
+                    children: [
+                      OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                              primary: Theme.of(context).primaryColor),
+                          onPressed: () {
+                            Get.back();
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.arrow_back_ios_sharp,
+                                  color: Get.isDarkMode
+                                      ? Colors.white
+                                      : Colors.black,
+                                  size: 23,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                Text('Annuler',
+                                    style: TextStyle(
+                                        fontSize: 18,
+                                        color: Get.isDarkMode
+                                            ? Colors.white
+                                            : Colors.black)),
+                              ],
+                            ),
+                          )),
+                      SizedBox(
+                        width: 20,
+                      ),
+                      SizedBox(
+                        width: 10,
+                      ),
+                      Expanded(
+                        child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                primary: Theme.of(context).primaryColor),
+                            onPressed: () async {
+                              if (keyForm.currentState!.validate()) {
+                                setState(() {
+                                  isCharging = true;
+                                });
+                                edit();
+                                setState(() {
+                                  isCharging = false;
+                                });
+                              }
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text('Enregistrer',
+                                      style: TextStyle(
+                                          fontSize: 18,
+                                          color: Get.isDarkMode
+                                              ? Colors.white
+                                              : Colors.black)),
+                                  isCharging
+                                      ? Loading(
+                                          color: Get.isDarkMode
+                                              ? Colors.white
+                                              : Colors.black,
+                                        )
+                                      : Icon(
+                                          Icons.arrow_forward_ios_sharp,
+                                          color: Get.isDarkMode
+                                              ? Colors.white
+                                              : Colors.black,
+                                          size: 23,
+                                        )
+                                ],
+                              ),
+                            )),
+                      ),
+                    ],
+                  )
+          ],
+        ),
+      ),
     );
   }
 }

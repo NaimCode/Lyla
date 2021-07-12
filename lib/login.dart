@@ -227,9 +227,6 @@ class _LoginImageNameState extends State<LoginImageName> {
                                 default:
                                   _index.value = 0;
                               }
-                              setState(() {
-                                isCharging = false;
-                              });
                             }
                           },
                           child: Padding(

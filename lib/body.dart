@@ -5,13 +5,13 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get.dart';
 import 'package:social_message/globalVariable.dart';
 import 'package:social_message/home.dart';
+import 'package:social_message/login.dart';
 
 import 'controllers/cubit/settings_cubit.dart';
 import 'data/internal.dart';
 
 class Body extends StatelessWidget {
-  final content;
-  const Body({required this.content, Key? key}) : super(key: key);
+  const Body({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -21,17 +21,35 @@ class Body extends StatelessWidget {
         child: Profil(user: context.watch<User?>()),
       ),
       body: Row(
-        children: [MenuSection(), Expanded(child: content)],
+        children: [MenuSection(), Expanded(child: Home())],
       ),
     );
   }
 }
 
-class MenuSection extends StatelessWidget {
+class BodyLog extends StatelessWidget {
+  const BodyLog({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Row(
+        children: [MenuSection(), Expanded(child: Login())],
+      ),
+    );
+  }
+}
+
+class MenuSection extends StatefulWidget {
   const MenuSection({
     Key? key,
   }) : super(key: key);
 
+  @override
+  _MenuSectionState createState() => _MenuSectionState();
+}
+
+class _MenuSectionState extends State<MenuSection> {
   @override
   Widget build(BuildContext context) {
     final settings = BlocProvider.of<SettingsCubit>(context);
@@ -43,15 +61,15 @@ class MenuSection extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: Center(
-              child: Image.asset(
-                'icons/logo.png',
-                fit: BoxFit.contain,
-              ),
-            ),
-          ),
+          TweenAnimationBuilder<int>(
+              tween: IntTween(begin: 2, end: 15),
+              duration: Duration(milliseconds: 600),
+              builder: (BuildContext _e, p, je) {
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: p.toDouble()),
+                  child: Center(child: Text(p.toString())),
+                );
+              }),
           Expanded(
               child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 20),
