@@ -931,300 +931,335 @@ class _ChattingState extends State<Chatting> {
     bool isMobile = MediaQuery.of(context).size.width <= 1000;
     return Scaffold(
       backgroundColor: Theme.of(context).highlightColor,
-      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-          stream: firestoreinstance
-              .collection('Utilisateur')
-              .doc(user!.uid)
-              .collection('Correspondant')
-              .doc(widget.correspondant!.uid)
-              .collection('Discussion')
-              .orderBy('date', descending: true)
-              .snapshots()
-              .distinct(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(
-                child: Loading(),
-              );
-            }
-            List<Message> listMessage = [];
-            if (snapshot.hasData) {
-              for (var i in snapshot.data!.docs) {
-                listMessage.add(Message.fromMap(i.data()).copyWith(uid: i.id));
-                if (!i.data()['vu']) setVu(i.id);
-              }
-            }
-            return ListView.builder(
-                reverse: true,
-                itemCount: listMessage.length,
-                itemBuilder: (context, index) {
-                  return !listMessage[index].isMine(user!.uid)
-                      ? Row(
-                          children: [
-                            Flexible(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
+      body: Column(
+        children: [
+          Expanded(
+            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                stream: firestoreinstance
+                    .collection('Utilisateur')
+                    .doc(user!.uid)
+                    .collection('Correspondant')
+                    .doc(widget.correspondant!.uid)
+                    .collection('Discussion')
+                    .orderBy('date', descending: true)
+                    .snapshots()
+                    .distinct(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: Loading(),
+                    );
+                  }
+                  List<Message> listMessage = [];
+                  if (snapshot.hasData) {
+                    for (var i in snapshot.data!.docs) {
+                      listMessage
+                          .add(Message.fromMap(i.data()).copyWith(uid: i.id));
+                      if (!i.data()['vu']) setVu(i.id);
+                    }
+                  }
+                  return ListView.builder(
+                      reverse: true,
+                      shrinkWrap: true,
+                      itemCount: listMessage.length,
+                      itemBuilder: (context, index) {
+                        return !listMessage[index].isMine(user!.uid)
+                            ? Row(
                                 children: [
-                                  listMessage[index].getAttachment(),
-                                  listMessage[index].content == ''
-                                      ? Container()
-                                      : Container(
-                                          margin: EdgeInsets.symmetric(
-                                              vertical: 2, horizontal: 10),
-                                          padding: EdgeInsets.symmetric(
-                                              vertical: 6, horizontal: 14),
-                                          constraints:
-                                              BoxConstraints(maxWidth: 400),
-                                          decoration: BoxDecoration(
-                                              color:
-                                                  Theme.of(context).cardColor,
-                                              borderRadius: BorderRadius.only(
-                                                  topLeft: Radius.circular(25),
-                                                  topRight: Radius.circular(25),
-                                                  bottomRight:
-                                                      Radius.circular(25))),
+                                  Flexible(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        listMessage[index].getAttachment(),
+                                        listMessage[index].content == ''
+                                            ? Container()
+                                            : Container(
+                                                margin: EdgeInsets.symmetric(
+                                                    vertical: 2,
+                                                    horizontal: 10),
+                                                padding: EdgeInsets.symmetric(
+                                                    vertical: 6,
+                                                    horizontal: 14),
+                                                constraints: BoxConstraints(
+                                                    maxWidth: 400),
+                                                decoration: BoxDecoration(
+                                                    color: Theme.of(context)
+                                                        .cardColor,
+                                                    borderRadius:
+                                                        BorderRadius.only(
+                                                            topLeft:
+                                                                Radius.circular(
+                                                                    25),
+                                                            topRight:
+                                                                Radius.circular(
+                                                                    25),
+                                                            bottomRight:
+                                                                Radius.circular(
+                                                                    25))),
+                                                child: Text(
+                                                    listMessage[index].content!,
+                                                    style: Theme.of(context)
+                                                        .textTheme
+                                                        .bodyText1),
+                                              ),
+                                        Container(
+                                          margin: EdgeInsets.only(
+                                              top: 1,
+                                              bottom: 10,
+                                              right: 10,
+                                              left: 10),
+
+                                          //constraints: BoxConstraints(maxWidth: 400),
+
                                           child: Text(
-                                              listMessage[index].content!,
+                                              timeago.format(
+                                                  DateTime.fromMicrosecondsSinceEpoch(
+                                                      listMessage[index]
+                                                          .date!
+                                                          .microsecondsSinceEpoch),
+                                                  locale: 'fr'),
                                               style: Theme.of(context)
                                                   .textTheme
-                                                  .bodyText1),
+                                                  .bodyText1!
+                                                  .copyWith(
+                                                      fontSize: 12,
+                                                      color: Colors.grey)),
                                         ),
-                                  Container(
-                                    margin: EdgeInsets.only(
-                                        top: 1,
-                                        bottom: 10,
-                                        right: 10,
-                                        left: 10),
-
-                                    //constraints: BoxConstraints(maxWidth: 400),
-
-                                    child: Text(
-                                        timeago.format(
-                                            DateTime.fromMicrosecondsSinceEpoch(
-                                                listMessage[index]
-                                                    .date!
-                                                    .microsecondsSinceEpoch),
-                                            locale: 'fr'),
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyText1!
-                                            .copyWith(
-                                                fontSize: 12,
-                                                color: Colors.grey)),
+                                      ],
+                                    ),
                                   ),
                                 ],
-                              ),
-                            ),
-                          ],
-                        )
-                      : Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            IconButton(
-                                tooltip: 'Supprimer',
-                                onPressed: () async {
-                                  var check = await Get.defaultDialog(
-                                    titleStyle:
-                                        Theme.of(context).textTheme.headline4,
-                                    middleTextStyle:
-                                        Theme.of(context).textTheme.bodyText1,
-                                    title: 'Suppression',
-                                    middleText: 'Confirmez votre décision',
-                                    textCancel: 'retour',
-                                    cancel: OutlinedButton(
-                                        onPressed: () {
-                                          Get.back();
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 3, horizontal: 5),
-                                          child: Text(
-                                            'retour',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyText1!
-                                                .copyWith(
-                                                    color: Get.isDarkMode
-                                                        ? Colors.white70
-                                                        : Colors.black87),
-                                          ),
-                                        )),
-                                    onCancel: () {
-                                      Get.back(result: false);
-                                    },
-                                    confirm: ElevatedButton(
-                                        style: ElevatedButton.styleFrom(
-                                            elevation: 0, primary: Colors.red),
-                                        onPressed: () async {
-                                          Get.back(result: true);
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              vertical: 3, horizontal: 5),
-                                          child: Text(
-                                            'Supprimer',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyText1!
-                                                .copyWith(
-                                                    color: Get.isDarkMode
-                                                        ? Colors.white70
-                                                        : Colors.black87),
-                                          ),
-                                        )),
-                                    // textConfirm: 'se déconnecter'
-                                  );
-                                  if (check) {
-                                    await firestoreinstance
-                                        .collection('Utilisateur')
-                                        .doc(widget.correspondant!.uid)
-                                        .collection('Correspondant')
-                                        .doc(user!.uid)
-                                        .collection('Discussion')
-                                        .doc(listMessage[index].uid)
-                                        .delete();
-                                    await firestoreinstance
-                                        .collection('Utilisateur')
-                                        .doc(user!.uid)
-                                        .collection('Correspondant')
-                                        .doc(widget.correspondant!.uid)
-                                        .collection('Discussion')
-                                        .doc(listMessage[index].uid)
-                                        .delete();
-                                  }
-                                },
-                                icon: Icon(Icons.delete_forever_outlined,
-                                    size: 20, color: Colors.red)),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                listMessage[index].getAttachment(),
-                                listMessage[index].content == ''
-                                    ? Container()
-                                    : Container(
-                                        margin: EdgeInsets.symmetric(
-                                            vertical: 2, horizontal: 10),
-                                        padding: EdgeInsets.symmetric(
-                                            vertical: 6, horizontal: 14),
-                                        constraints:
-                                            BoxConstraints(maxWidth: 400),
-                                        decoration: BoxDecoration(
-                                            color: Get.isDarkMode
-                                                ? Colors.blue.withOpacity(0.6)
-                                                : Theme.of(context)
-                                                    .primaryColor
-                                                    .withOpacity(0.6),
-                                            borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(25),
-                                                topRight: Radius.circular(25),
-                                                bottomLeft:
-                                                    Radius.circular(25))),
-                                        child: Text(
-                                          listMessage[index].content!,
-                                          style: Theme.of(context)
+                              )
+                            : Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  IconButton(
+                                      tooltip: 'Supprimer',
+                                      onPressed: () async {
+                                        var check = await Get.defaultDialog(
+                                          titleStyle: Theme.of(context)
                                               .textTheme
-                                              .bodyText1!,
-                                        ),
+                                              .headline4,
+                                          middleTextStyle: Theme.of(context)
+                                              .textTheme
+                                              .bodyText1,
+                                          title: 'Suppression',
+                                          middleText:
+                                              'Confirmez votre décision',
+                                          textCancel: 'retour',
+                                          cancel: OutlinedButton(
+                                              onPressed: () {
+                                                Get.back();
+                                              },
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 3,
+                                                        horizontal: 5),
+                                                child: Text(
+                                                  'retour',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyText1!
+                                                      .copyWith(
+                                                          color: Get.isDarkMode
+                                                              ? Colors.white70
+                                                              : Colors.black87),
+                                                ),
+                                              )),
+                                          onCancel: () {
+                                            Get.back(result: false);
+                                          },
+                                          confirm: ElevatedButton(
+                                              style: ElevatedButton.styleFrom(
+                                                  elevation: 0,
+                                                  primary: Colors.red),
+                                              onPressed: () async {
+                                                Get.back(result: true);
+                                              },
+                                              child: Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 3,
+                                                        horizontal: 5),
+                                                child: Text(
+                                                  'Supprimer',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .bodyText1!
+                                                      .copyWith(
+                                                          color: Get.isDarkMode
+                                                              ? Colors.white70
+                                                              : Colors.black87),
+                                                ),
+                                              )),
+                                          // textConfirm: 'se déconnecter'
+                                        );
+                                        if (check) {
+                                          await firestoreinstance
+                                              .collection('Utilisateur')
+                                              .doc(widget.correspondant!.uid)
+                                              .collection('Correspondant')
+                                              .doc(user!.uid)
+                                              .collection('Discussion')
+                                              .doc(listMessage[index].uid)
+                                              .delete();
+                                          await firestoreinstance
+                                              .collection('Utilisateur')
+                                              .doc(user!.uid)
+                                              .collection('Correspondant')
+                                              .doc(widget.correspondant!.uid)
+                                              .collection('Discussion')
+                                              .doc(listMessage[index].uid)
+                                              .delete();
+                                        }
+                                      },
+                                      icon: Icon(Icons.delete_forever_outlined,
+                                          size: 20, color: Colors.red)),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      listMessage[index].getAttachment(),
+                                      listMessage[index].content == ''
+                                          ? Container()
+                                          : Container(
+                                              margin: EdgeInsets.symmetric(
+                                                  vertical: 2, horizontal: 10),
+                                              padding: EdgeInsets.symmetric(
+                                                  vertical: 6, horizontal: 14),
+                                              constraints:
+                                                  BoxConstraints(maxWidth: 400),
+                                              decoration: BoxDecoration(
+                                                  color: Get.isDarkMode
+                                                      ? Colors.blue
+                                                          .withOpacity(0.6)
+                                                      : Theme.of(context)
+                                                          .primaryColor
+                                                          .withOpacity(0.6),
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                  25),
+                                                          topRight:
+                                                              Radius.circular(
+                                                                  25),
+                                                          bottomLeft:
+                                                              Radius.circular(
+                                                                  25))),
+                                              child: Text(
+                                                listMessage[index].content!,
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyText1!,
+                                              ),
+                                            ),
+                                      Container(
+                                        margin: EdgeInsets.only(
+                                            top: 1,
+                                            bottom: 10,
+                                            right: 10,
+                                            left: 10),
+
+                                        //constraints: BoxConstraints(maxWidth: 400),
+
+                                        child: Text(
+                                            timeago.format(
+                                                DateTime.fromMicrosecondsSinceEpoch(
+                                                    listMessage[index]
+                                                        .date!
+                                                        .microsecondsSinceEpoch),
+                                                locale: 'fr'),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyText1!
+                                                .copyWith(
+                                                    fontSize: 12,
+                                                    color: Colors.grey)),
                                       ),
-                                Container(
-                                  margin: EdgeInsets.only(
-                                      top: 1, bottom: 10, right: 10, left: 10),
-
-                                  //constraints: BoxConstraints(maxWidth: 400),
-
-                                  child: Text(
-                                      timeago.format(
-                                          DateTime.fromMicrosecondsSinceEpoch(
-                                              listMessage[index]
-                                                  .date!
-                                                  .microsecondsSinceEpoch),
-                                          locale: 'fr'),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyText1!
-                                          .copyWith(
-                                              fontSize: 12,
-                                              color: Colors.grey)),
-                                ),
-                              ],
-                            ),
-                          ],
-                        );
-                });
-          }),
-      bottomNavigationBar: Padding(
-        padding: const EdgeInsets.all(10.0),
-        child: Container(
-          // height: 60,
-          color: Theme.of(context).cardColor,
-          padding: EdgeInsets.symmetric(vertical: 2, horizontal: 15),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: TextFormField(
-                  controller: messageContent,
-                  keyboardType: TextInputType.multiline,
-                  maxLines: 6,
-                  minLines: 1,
-                  style: Theme.of(context).textTheme.bodyText1!.copyWith(
-                      color: Get.isDarkMode ? Colors.white : Colors.black),
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    hintText: 'Message',
-                  ),
-                ),
-              ),
-              Obx(() => isCharging.value
-                  ? SizedBox(height: 40, child: Loading())
-                  : Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                                elevation: 4,
-                                primary: Get.isDarkMode
-                                    ? Colors.blue
-                                    : Theme.of(context).primaryColor),
-                            onPressed: sendMessage,
-                            child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 5, horizontal: 20),
-                                child: Icon(FontAwesomeIcons.paperPlane,
-                                    size: 22, color: Colors.black87))),
-                        SizedBox(
-                          width: 5,
-                        ),
-                        Obx(() => progessFile!.value <= 0.0
-                            ? IconButton(
-                                hoverColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                splashColor: Colors.transparent,
-                                tooltip: 'Envoyer une image',
-                                onPressed: pickAvatar,
-                                icon: Icon(
-                                  Icons.image_outlined,
-                                  color: Get.isDarkMode
-                                      ? Colors.blue
-                                      : Theme.of(context).primaryColor,
-                                ))
-                            : SizedBox(
-                                height: 35,
-                                width: 35,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  value: progessFile!.value,
-                                  color: Get.isDarkMode
-                                      ? Colors.blue
-                                      : Theme.of(context).primaryColor,
-                                )))
-                      ],
-                    )),
-            ],
+                                    ],
+                                  ),
+                                ],
+                              );
+                      });
+                }),
           ),
-        ),
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Container(
+              // height: 60,
+              color: Theme.of(context).cardColor,
+              padding: EdgeInsets.symmetric(vertical: 2, horizontal: 15),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: messageContent,
+                      keyboardType: TextInputType.multiline,
+                      maxLines: 6,
+                      minLines: 1,
+                      style: Theme.of(context).textTheme.bodyText1!.copyWith(
+                          color: Get.isDarkMode ? Colors.white : Colors.black),
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: 'Message',
+                      ),
+                    ),
+                  ),
+                  Obx(() => isCharging.value
+                      ? SizedBox(height: 40, child: Loading())
+                      : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                    elevation: 4,
+                                    primary: Get.isDarkMode
+                                        ? Colors.blue
+                                        : Theme.of(context).primaryColor),
+                                onPressed: sendMessage,
+                                child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 5, horizontal: 20),
+                                    child: Icon(FontAwesomeIcons.paperPlane,
+                                        size: 22, color: Colors.black87))),
+                            SizedBox(
+                              width: 5,
+                            ),
+                            Obx(() => progessFile!.value <= 0.0
+                                ? IconButton(
+                                    hoverColor: Colors.transparent,
+                                    highlightColor: Colors.transparent,
+                                    splashColor: Colors.transparent,
+                                    tooltip: 'Envoyer une image',
+                                    onPressed: pickAvatar,
+                                    icon: Icon(
+                                      Icons.image_outlined,
+                                      color: Get.isDarkMode
+                                          ? Colors.blue
+                                          : Theme.of(context).primaryColor,
+                                    ))
+                                : SizedBox(
+                                    height: 35,
+                                    width: 35,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      value: progessFile!.value,
+                                      color: Get.isDarkMode
+                                          ? Colors.blue
+                                          : Theme.of(context).primaryColor,
+                                    )))
+                          ],
+                        )),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
       floatingActionButton: null,
       appBar: AppBar(
