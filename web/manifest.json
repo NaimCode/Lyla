@@ -1,11 +1,11 @@
 {
-    "name": "social_message",
-    "short_name": "social_message",
+    "name": "Lyla",
+    "short_name": "Lyla",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Commencer à discuter en seulement un click et en toute sécurité",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -66,10 +66,9 @@ class _DiscussionSpecialItemState extends State<DiscussionSpecialItem> {
                       listMessage.add(Message.fromMap(i.data()));
                   }
                 }
-                utilisateur!.uid.printInfo();
-                widget.correspondant.printInfo();
+
                 return ListTile(
-                  selected: utilisateur.uid == widget.correspondant,
+                  selected: utilisateur!.uid == widget.correspondant,
                   onTap: () async {
                     switch (widget.type) {
                       case 'Discussion':

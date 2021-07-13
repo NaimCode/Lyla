@@ -6,7 +6,9 @@ import 'package:get/get.dart';
 import 'package:social_message/globalVariable.dart';
 import 'package:social_message/home.dart';
 import 'package:social_message/login.dart';
+import 'package:social_message/widget/constant.dart';
 
+import 'controllers/cubit/chatting_cubit.dart';
 import 'controllers/cubit/settings_cubit.dart';
 import 'data/internal.dart';
 
@@ -53,6 +55,7 @@ class _MenuSectionState extends State<MenuSection> {
   @override
   Widget build(BuildContext context) {
     final settings = BlocProvider.of<SettingsCubit>(context);
+    var isMobile = MediaQuery.of(context).size.width < 1000;
     return Container(
       color: Theme.of(context).primaryColor,
       width: 60,
@@ -61,15 +64,23 @@ class _MenuSectionState extends State<MenuSection> {
       ),
       child: Column(
         children: [
-          TweenAnimationBuilder<int>(
-              tween: IntTween(begin: 2, end: 15),
-              duration: Duration(milliseconds: 600),
-              builder: (BuildContext _e, p, je) {
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: p.toDouble()),
-                  child: Center(child: Text(p.toString())),
-                );
-              }),
+          InkWell(
+            onTap: () {
+              if (isMobile) {
+                //Get.to(() => IntroChatting());
+              } else {
+                corresGlobal = null;
+                BlocProvider.of<ChattingCubit>(context).select(null);
+              }
+            },
+            highlightColor: Colors.transparent,
+            hoverColor: Colors.transparent,
+            focusColor: Colors.transparent,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5),
+              child: Image.asset('icons/logo.png'),
+            ),
+          ),
           Expanded(
               child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 20),

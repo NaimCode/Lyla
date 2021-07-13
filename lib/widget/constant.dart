@@ -3,11 +3,14 @@ import 'dart:html';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import 'package:get/get.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
+import 'package:social_message/controllers/cubit/settings_cubit.dart';
 import 'package:social_message/model/class.dart';
 import 'package:social_message/service/authentification.dart';
 import 'package:social_message/widget/item.dart';
@@ -100,15 +103,77 @@ class IntroChatting extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Text(
-          'Bienvenue sur LYLA',
-          style: Get.isDarkMode
-              ? ThemeData.dark().textTheme.headline4
-              : ThemeData.light().textTheme.headline4,
-        ),
-      ),
+    var isMobile = MediaQuery.of(context).size.width < 1000;
+    return BlocBuilder<SettingsCubit, SettingsState>(
+      builder: (context, state) {
+        return Scaffold(
+          body: Container(
+            height: double.infinity,
+            child: Stack(
+              alignment: AlignmentDirectional.center,
+              children: [
+                Container(
+                  height: double.infinity,
+                  child: Image.asset(
+                      state.setDarkMode!
+                          ? 'images/bg_dark.jpg'
+                          : 'images/bg_${state.colorTheme}.jpg',
+                      fit: BoxFit.cover),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Bienvenue sur LYLA',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.jost(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 40,
+                                  color: state.colorTheme == 'amber' ||
+                                          state.colorTheme == 'grey'
+                                      ? Colors.black
+                                      : Colors.white),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              'Commencer à discuter en seulement un click et en toute sécurité',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.jost(
+                                  fontSize: 20,
+                                  color: state.colorTheme == 'amber' ||
+                                          state.colorTheme == 'grey'
+                                      ? Colors.black54
+                                      : Colors.white60),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Text(
+                        'Développé par Naim Abdelkerim',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.jost(
+                            fontSize: 16,
+                            color: state.colorTheme == 'amber' ||
+                                    state.colorTheme == 'grey'
+                                ? Colors.black54
+                                : Colors.white60),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

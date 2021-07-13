@@ -221,31 +221,28 @@ class _HomeState extends State<Home> {
       isMobile
           ? Container()
           : Expanded(
-              child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  child: Container(
-                    child: BlocBuilder<ChattingCubit, ChattingState>(
-                      builder: (context, state) {
-                        return AnimatedSwitcher(
-                          transitionBuilder: (widget, animation) =>
-                              ScaleTransition(
+              child: BlocBuilder<ChattingCubit, ChattingState>(
+                builder: (context, state) {
+                  return AnimatedSwitcher(
+                      transitionBuilder: (widget, animation) => ScaleTransition(
                             scale: animation,
                             child: widget,
                           ),
-                          duration: Duration(milliseconds: 1000),
-                          child: state.corres == null
-                              ? IntroChatting(
-                                  key: UniqueKey(),
-                                )
-                              : Chatting(
-                                  user: user,
-                                  correspondant: state.corres,
-                                  key: UniqueKey(),
-                                ),
-                        );
-                      },
-                    ),
-                  )),
+                      duration: Duration(milliseconds: 1000),
+                      child: state.corres == null
+                          ? IntroChatting(
+                              key: UniqueKey(),
+                            )
+                          : Padding(
+                              key: UniqueKey(),
+                              padding: const EdgeInsets.symmetric(vertical: 20),
+                              child: Chatting(
+                                user: user,
+                                correspondant: state.corres,
+                              ),
+                            ));
+                },
+              ),
             ),
       isMobile ? Container() : Profil(user: user),
     ]);
